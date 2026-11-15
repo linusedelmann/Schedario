@@ -1,0 +1,2194 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Schedario Italienisch</title>
+<meta name="description" content="Karteikarten für Italienisch aus deinen Unterlagen, mit Phasen-Wiederholsystem.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Schedario">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#f2f4f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f141a" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..800;1,6..96,400..800&amp;display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Eine Spalte fürs Telefon. Italienische Wörter in Bodoni, Bedienung in der Systemschrift.
+     Grün und Rot stehen nur für richtig und falsch, Azzurro ist die Akzentfarbe. */
+  --paper: #f2f4f1;
+  --card: #ffffff;
+  --ink: #16202b;
+  --muted: #586472;
+  --line: #d5dade;
+  --accent: #1c5aa6;
+  --accent-ink: #ffffff;
+  --accent-soft: #e1ebf7;
+  --ok: #1a7445;
+  --ok-soft: #dcf0e3;
+  --bad: #b02e2b;
+  --bad-soft: #f8e1df;
+  --warn: #855900;
+  --warn-soft: #f6ecd0;
+  --font-display: "Bodoni 72", "Bodoni Moda", Didot, "Bodoni MT", "Times New Roman", serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --radius: 14px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f141a; --card: #19212a; --ink: #e9edf0; --muted: #9aa6b2; --line: #2c3743;
+    --accent: #78afef; --accent-ink: #0b1622; --accent-soft: #1a2c43;
+    --ok: #5fc490; --ok-soft: #153224; --bad: #f08883; --bad-soft: #3b1e1d; --warn: #e3b95a; --warn-soft: #3a2e12;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f141a; --card: #19212a; --ink: #e9edf0; --muted: #9aa6b2; --line: #2c3743;
+  --accent: #78afef; --accent-ink: #0b1622; --accent-soft: #1a2c43;
+  --ok: #5fc490; --ok-soft: #153224; --bad: #f08883; --bad-soft: #3b1e1d; --warn: #e3b95a; --warn-soft: #3a2e12;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 17px/1.45 var(--font-body);
+  -webkit-tap-highlight-color: transparent;
+}
+h1, h2, h3, p, ul, ol { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+#view:focus { outline: none; }
+
+.app { max-width: 560px; margin: 0 auto; padding: 0 16px calc(96px + env(safe-area-inset-bottom)); }
+.app.focus { padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+.stack-s { display: flex; flex-direction: column; gap: 10px; }
+.rowflex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.grow { flex: 1 1 auto; min-width: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.center { text-align: center; }
+
+/* Kopf */
+.top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 20px 0 4px; }
+.brand { font-family: var(--font-display); font-size: 34px; line-height: 1; font-weight: 700; letter-spacing: -0.01em; }
+.brand-sub { color: var(--muted); font-size: 14px; }
+.page-title { font-family: var(--font-display); font-size: 30px; line-height: 1.1; font-weight: 700; text-wrap: balance; overflow-wrap: anywhere; }
+.backlink { display: inline-flex; align-items: center; gap: 4px; background: none; border: 0; padding: 18px 8px 6px 0; color: var(--accent); font-weight: 600; }
+.eyebrow { font: 600 11.5px/1.3 var(--font-mono); letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+.section-h { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); padding: 6px 2px 0; }
+
+/* Flächen */
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.note { border-radius: 12px; padding: 12px 14px; font-size: 15px; background: var(--accent-soft); display: flex; flex-direction: column; gap: 8px; }
+.note.warn { background: var(--warn-soft); }
+.note.bad { background: var(--bad-soft); }
+.note strong { font-weight: 700; }
+.detail { font: 12.5px/1.4 var(--font-mono); color: var(--muted); overflow-wrap: anywhere; }
+
+/* Schaltflächen */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 10px 18px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--card); font-weight: 650; font-size: 16px; text-decoration: none; color: var(--ink); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.big { min-height: 56px; font-size: 18px; width: 100%; }
+.btn.ghost { background: transparent; }
+.btn.danger { color: var(--bad); border-color: var(--bad); background: transparent; }
+.btn.okb { background: var(--ok); border-color: var(--ok); color: var(--card); }
+.btn.badb { background: transparent; border-color: var(--bad); color: var(--bad); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn.wide { flex: 1 1 0; }
+.link { background: none; border: 0; padding: 4px 0; color: var(--accent); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.icon-btn { width: 44px; height: 44px; border-radius: 50%; border: 0; background: transparent; display: inline-flex; align-items: center; justify-content: center; color: var(--muted); flex: none; }
+.icon-btn svg { width: 22px; height: 22px; }
+
+.pill { display: inline-flex; align-items: center; white-space: nowrap; font-size: 12.5px; font-weight: 650; padding: 3px 9px; border-radius: 999px; background: var(--paper); color: var(--muted); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.pill.acc { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+.pill.okp { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+
+/* Heute */
+.bignum { font-family: var(--font-display); font-size: 64px; line-height: 0.95; font-weight: 700; font-variant-numeric: lining-nums; }
+.bignum span { font-family: var(--font-body); font-size: 18px; font-weight: 600; color: var(--muted); margin-left: 8px; }
+
+/* Karteikasten: sieben Fächer */
+.phases { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; align-items: end; }
+.ph { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+.ph .n { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ph .bar { width: 100%; height: 56px; border-radius: 8px 8px 3px 3px; background: var(--paper); border: 1px solid var(--line); display: flex; align-items: flex-end; overflow: hidden; }
+.ph .bar i { display: block; width: 100%; background: var(--accent); min-height: 0; border-radius: 2px 2px 0 0; }
+.ph.new .bar i { background: var(--muted); }
+.ph.done .bar i { background: var(--ok); }
+.ph .lab { font-size: 13px; font-weight: 700; }
+.ph .cap { font-size: 10.5px; letter-spacing: -0.01em; line-height: 14px; min-height: 14px; color: var(--muted); white-space: nowrap; }
+
+/* Listen */
+.list { display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.row { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: none; border: 0; border-top: 1px solid var(--line); padding: 14px 14px 14px 16px; min-height: 60px; }
+.list > :first-child, .list > :first-child .row { border-top: 0; }
+.row-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 auto; }
+.row-main strong { font-weight: 650; overflow-wrap: anywhere; }
+.row-side { display: flex; gap: 6px; align-items: center; flex: none; }
+.chev { color: var(--muted); flex: none; }
+
+/* Lernkarte */
+.sess-top { display: flex; align-items: center; gap: 10px; padding: 10px 0 6px; }
+.prog { flex: 1 1 auto; height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.prog i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.25s ease; }
+.prog-n { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; min-width: 52px; text-align: right; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px 18px 18px; display: flex; flex-direction: column; gap: 14px; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.front { font-size: 26px; line-height: 1.2; font-weight: 650; overflow-wrap: anywhere; text-wrap: balance; }
+.front.it { font-family: var(--font-display); font-size: 40px; font-weight: 700; line-height: 1.08; letter-spacing: -0.005em; }
+.front.mid { font-size: 23px; }
+.front.it.mid { font-size: 28px; line-height: 1.18; }
+.front.long { font-size: 19px; font-weight: 600; line-height: 1.38; text-wrap: pretty; }
+.front.it.long { font-size: 23px; }
+.front em, .soltext em { font-family: var(--font-display); font-style: italic; font-size: 1.1em; }
+.front.it em { font-size: 1em; }
+.gap { display: inline-block; width: 2.6em; border-bottom: 3px solid var(--accent); margin: 0 0.12em; transform: translateY(-0.12em); }
+.sub { color: var(--muted); font-size: 15px; margin-top: -6px; }
+.rule { width: 44px; height: 3px; background: var(--accent); border-radius: 2px; }
+
+.fields { display: flex; flex-direction: column; gap: 14px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.flabel { display: flex; justify-content: space-between; align-items: baseline; gap: 2px 8px; flex-wrap: wrap; }
+.flabel label, .flabel .lbl { font-size: 14px; font-weight: 650; }
+.fsub { font-family: var(--font-display); font-style: italic; font-size: 14px; color: var(--muted); }
+.inp, .ta, .sel { width: 100%; min-height: 50px; padding: 10px 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--paper); font-size: 18px; }
+.ta { min-height: 96px; line-height: 1.4; resize: vertical; font-size: 16px; }
+.sel { font-size: 16px; appearance: auto; }
+.inp:focus, .ta:focus, .sel:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.field.ok .inp { border-color: var(--ok); background: var(--ok-soft); }
+.field.bad .inp { border-color: var(--bad); background: var(--bad-soft); }
+.fix { font-size: 15px; color: var(--bad); }
+.fix.warn { color: var(--warn); }
+.fix strong { font-weight: 700; }
+.conj .field { flex-direction: row; align-items: center; gap: 10px; flex-wrap: wrap; }
+.conj .flabel { width: 62px; flex: none; }
+.conj .flabel label { font-family: var(--font-display); font-style: italic; font-size: 17px; font-weight: 500; }
+.conj .inp { flex: 1 1 120px; width: auto; min-width: 0; min-height: 46px; }
+.conj .fix { flex-basis: 100%; padding-left: 72px; }
+
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px; }
+.seg-b { min-height: 48px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--paper); font-family: var(--font-display); font-size: 21px; font-weight: 600; padding: 4px 2px; }
+.seg-b.sel { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.seg-b:disabled { cursor: default; opacity: 1; color: var(--muted); }
+.seg-b.right:disabled { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); }
+.seg-b.wrong:disabled { border-color: var(--bad); background: var(--bad-soft); color: var(--bad); text-decoration: line-through; }
+
+.accents { display: flex; gap: 6px; }
+.acckey { flex: 1 1 0; min-height: 40px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); font-size: 18px; font-family: var(--font-display); }
+
+.verdict { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; border-radius: 12px; font-weight: 700; }
+.verdict small { font-weight: 500; font-size: 14px; }
+.verdict.ok { background: var(--ok-soft); color: var(--ok); }
+.verdict.bad { background: var(--bad-soft); color: var(--bad); }
+.verdict.learn { background: var(--accent-soft); color: var(--accent); }
+.solution { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--line); padding-top: 14px; }
+.soltext { font-size: 18px; line-height: 1.45; overflow-wrap: anywhere; }
+.soltext strong { font-weight: 750; }
+.info { font-size: 15px; color: var(--muted); padding-left: 12px; border-left: 3px solid var(--line); }
+.src { font: 12px/1.3 var(--font-mono); color: var(--muted); }
+.actions { display: flex; gap: 10px; }
+.actions.col { flex-direction: column; }
+
+/* Zusammenfassung */
+.summary { padding-top: 36px; }
+.display { font-family: var(--font-display); font-size: 54px; line-height: 1; font-weight: 700; font-style: italic; }
+
+/* Deck */
+details.grp { border-top: 1px solid var(--line); }
+details.grp:first-child { border-top: 0; }
+details.grp > summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; cursor: pointer; font-weight: 650; }
+details.grp > summary::-webkit-details-marker { display: none; }
+details.grp > summary::after { content: ""; width: 9px; height: 9px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); flex: none; margin-left: 4px; }
+details.grp[open] > summary::after { transform: rotate(-135deg); }
+details.grp > summary .grow { overflow-wrap: anywhere; }
+.crow { border-top: 1px solid var(--line); }
+.crow-b { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; background: none; border: 0; text-align: left; padding: 11px 16px; min-height: 48px; }
+.crow-t { min-width: 0; overflow-wrap: anywhere; font-size: 16px; }
+.crow-t.it { font-family: var(--font-display); font-size: 19px; font-weight: 600; }
+.crow-d { padding: 4px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+.crow-d .solution { border-top: 0; padding-top: 0; }
+.kv { font-size: 14px; color: var(--muted); }
+.pick { display: flex; align-items: flex-start; gap: 12px; padding: 11px 16px; border-top: 1px solid var(--line); }
+.pick input { width: 22px; height: 22px; margin: 2px 0 0; flex: none; accent-color: var(--accent); }
+.pick .pt { min-width: 0; overflow-wrap: anywhere; display: flex; flex-direction: column; gap: 2px; }
+.pick .pt b { font-weight: 600; }
+.pick .pt b.it { font-family: var(--font-display); font-size: 19px; }
+.pick .pt span { font-size: 14px; color: var(--muted); }
+
+/* Import */
+.drop { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding: 26px 16px; border: 2px dashed var(--line); border-radius: var(--radius); background: var(--card); cursor: pointer; }
+.drop strong { font-size: 18px; color: var(--accent); }
+.drop:focus-within { border-color: var(--accent); }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 6px 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--card); font-size: 15px; font-weight: 600; cursor: pointer; }
+.chip input { accent-color: var(--accent); width: 18px; height: 18px; margin: 0; }
+.chip:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.pre { font: 12.5px/1.45 var(--font-mono); white-space: pre-wrap; overflow-wrap: anywhere; max-height: 240px; overflow: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+.live { display: flex; flex-direction: column; gap: 4px; min-height: 150px; }
+.live li { font-size: 15px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.live li:last-child { color: var(--ink); font-weight: 600; }
+.spinner { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--accent); animation: spin 0.9s linear infinite; flex: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 3s; } .prog i { transition: none; } }
+
+/* Optionen */
+.opt { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; }
+.opt > span { min-width: 0; }
+.stepper { display: inline-flex; align-items: center; gap: 4px; flex: none; }
+.stepper button { width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--card); font-size: 22px; font-weight: 600; line-height: 1; }
+.stepper output { min-width: 40px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.switch { width: 26px; height: 26px; accent-color: var(--accent); flex: none; }
+
+/* Leiste unten */
+.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; background: var(--card); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); }
+.tabbar ul { display: flex; max-width: 560px; margin: 0 auto; }
+.tabbar li { flex: 1 1 0; }
+.tabbar a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 9px 4px 8px; font-size: 12px; font-weight: 650; color: var(--muted); text-decoration: none; }
+.tabbar a svg { width: 24px; height: 24px; }
+.tabbar a[aria-current="page"] { color: var(--accent); }
+
+.toast { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%); max-width: min(520px, calc(100vw - 32px)); background: var(--ink); color: var(--paper); padding: 11px 16px; border-radius: 12px; font-size: 15px; font-weight: 600; z-index: 20; opacity: 0; pointer-events: none; transition: opacity 0.2s; text-align: center; }
+.toast.show { opacity: 1; }
+.dialog { position: fixed; inset: 0; z-index: 30; background: rgba(8, 12, 18, 0.55); display: flex; align-items: flex-end; justify-content: center; padding: 16px 16px calc(16px + env(safe-area-inset-bottom)); }
+.dialog-box { background: var(--card); border-radius: 18px; padding: 20px; width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 12px; }
+.dialog-box h2 { font-size: 20px; }
+@media (min-width: 600px) { .dialog { align-items: center; } }
+
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <main id="view" tabindex="-1"></main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Bereiche">
+  <ul>
+    <li><a href="#heute" id="tab-heute"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M7 6V4h10v2M3 11h18"/></svg>Lernen</a></li>
+    <li><a href="#import" id="tab-import"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"/></svg>Import</a></li>
+    <li><a href="#optionen" id="tab-optionen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Optionen</a></li>
+  </ul>
+</nav>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="dialog" class="dialog" hidden></div>
+<noscript><p style="padding:24px">Schedario braucht JavaScript.</p></noscript>
+<script>
+/* Schedario – Kernlogik (ohne DOM): Zeit, Phasen, Antwortprüfung, Kartentypen, Prompt */
+(function (g) {
+  'use strict';
+  var S = g.S = g.S || {};
+
+  /* ---------- Zeit ---------- */
+  S.DAY = 86400000;
+  S.now = function () { return Date.now(); };
+  S.today = function () {
+    var d = new Date(S.now());
+    return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / S.DAY);
+  };
+  S.uid = function () {
+    return Math.random().toString(36).slice(2, 8) + (Math.floor(S.now()) % 46656).toString(36);
+  };
+
+  /* ---------- Phasen (Prinzip phase6: wachsende Abstände, Fehler = zurück auf Phase 1) ---------- */
+  S.WAITS = [0, 1, 3, 9, 29, 90];      // Wartezeit in Tagen in Phase 1..5
+  S.LONGTERM = 6;                      // Phase 6 = Langzeitgedächtnis
+  S.isNew = function (c) { return !c.p; };
+  S.isDue = function (c, today) { return c.p >= 1 && c.p < S.LONGTERM && (c.due || 0) <= today; };
+  S.grade = function (c, correct, today) {
+    var p = c.p || 0, out = { p: p, due: c.due || 0, ok: c.ok || 0, ko: c.ko || 0 };
+    if (correct) {
+      out.ok++;
+      out.p = Math.min(S.LONGTERM, p + 1);
+      out.due = out.p >= S.LONGTERM ? 0 : today + S.WAITS[out.p];
+    } else {
+      out.ko++;
+      out.p = 1;
+      out.due = today + S.WAITS[1];
+    }
+    return out;
+  };
+
+  /* ---------- Antwortprüfung ---------- */
+  S.norm = function (s) {
+    return String(s == null ? '' : s).normalize('NFC').toLowerCase()
+      .replace(/[‘’ʼ`´]/g, "'")
+      .replace(/\s+/g, ' ')
+      .replace(/\s*'\s*/g, "'")
+      .replace(/^[\s.,;:!?¿¡"«»]+|[\s.,;:!?"«»]+$/g, '')
+      .trim();
+  };
+  S.fold = function (s) { return s.normalize('NFD').replace(/[̀-ͯ]/g, ''); };
+
+  var ART = /^(der|die|das|den|dem|des|ein|eine|einen|einem|einer|the|a|an|to|zu|sich)\s+/;
+  function stripArt(t) { var u = t; while (ART.test(u)) u = u.replace(ART, ''); return u; }
+  S.meaningVariants = function (m) {
+    var out = {};
+    function add(t) { t = S.norm(t); if (!t) return; out[t] = 1; var u = stripArt(t); if (u) out[u] = 1; }
+    var whole = String(m == null ? '' : m);
+    var noPar = whole.replace(/\s*\([^)]*\)/g, '');
+    add(whole); add(noPar);
+    noPar.split(/\s*[;,\/]\s*|\s+oder\s+|\s+or\s+/).forEach(add);
+    var re = /\(([^)]*)\)/g, mm;
+    while ((mm = re.exec(whole))) mm[1].split(/\s*[;,\/]\s*/).forEach(add);
+    return out;
+  };
+
+  /* Prüft ein Feld. Ergebnis: {ok, accent, expected} */
+  S.checkField = function (field, input, strict) {
+    var u = S.norm(input), expected = field.a, k;
+    if (!u) return { ok: false, accent: false, expected: expected };
+    if (field.lenient) {
+      var set = S.meaningVariants(field.a);
+      (field.alt || []).forEach(function (a) { var v = S.meaningVariants(a); for (var x in v) set[x] = 1; });
+      var parts = u.split(/\s*[;,\/]\s*/).filter(Boolean);
+      var hit = function (p) { return set[p] || set[stripArt(p)]; };
+      if (hit(u) || (parts.length && parts.every(hit))) return { ok: true, accent: false, expected: expected };
+      var folded = {};
+      for (k in set) folded[S.fold(k)] = 1;
+      if (folded[S.fold(u)] || folded[S.fold(stripArt(u))]) return { ok: true, accent: false, expected: expected };
+      return { ok: false, accent: false, expected: expected };
+    }
+    var acc = [field.a].concat(field.alt || []), nacc = acc.map(S.norm);
+    if (nacc.indexOf(u) >= 0) return { ok: true, accent: false, expected: expected };
+    var fu = S.fold(u);
+    for (var i = 0; i < nacc.length; i++) {
+      if (S.fold(nacc[i]) === fu) return { ok: !strict, accent: true, expected: acc[i] };
+    }
+    return { ok: false, accent: false, expected: expected };
+  };
+
+  /* ---------- Texte je Kartensprache ---------- */
+  S.TXT = {
+    de: {
+      noun: 'Nomen · Genus & Artikel', nounSub: 'Genus, Artikel und Bedeutung bestimmen',
+      genus: 'Genus', genusS: 'maschile / femminile',
+      det: 'bestimmter Artikel', detS: 'articolo determinativo',
+      indet: 'unbestimmter Artikel', indetS: 'articolo indeterminativo',
+      meaning: 'Bedeutung', meaningS: 'significato',
+      prod: 'Übersetzen · mit Artikel', prodSub: 'Auf Italienisch, mit bestimmtem Artikel',
+      italian: 'Italienisch', plural: 'Plural', pluralSub: 'Plural mit Artikel bilden',
+      conj: 'Konjugation', conjSub: 'Alle sechs Formen eintragen',
+      voc: 'Wortschatz', toMe: 'Was bedeutet das?', toIt: 'Wie heißt das auf Italienisch?',
+      rule: 'Regel', cloze: 'Lückensatz', clozeSub: 'Was gehört in die Lücke?', gap: 'Lücke', answer: 'Antwort',
+      whyVowel: "Vor Vokal steht l' statt il oder la.", whyUnF: "Feminin vor Vokal: un'.", whyUnM: 'Maskulin bleibt un.',
+      whyLo: 'Vor s + Konsonant, z, gn, ps, x, y stehen lo und uno.'
+    },
+    en: {
+      noun: 'Noun · gender & article', nounSub: 'Give gender, articles and meaning',
+      genus: 'Gender', genusS: 'maschile / femminile',
+      det: 'definite article', detS: 'articolo determinativo',
+      indet: 'indefinite article', indetS: 'articolo indeterminativo',
+      meaning: 'Meaning', meaningS: 'significato',
+      prod: 'Translate · with article', prodSub: 'In Italian, with the definite article',
+      italian: 'Italian', plural: 'Plural', pluralSub: 'Form the plural with its article',
+      conj: 'Conjugation', conjSub: 'Fill in all six forms',
+      voc: 'Vocabulary', toMe: 'What does it mean?', toIt: 'How do you say it in Italian?',
+      rule: 'Rule', cloze: 'Fill the gap', clozeSub: 'What goes in the gap?', gap: 'Gap', answer: 'Answer',
+      whyVowel: "Before a vowel the article is l', not il or la.", whyUnF: "Feminine before a vowel: un'.", whyUnM: 'Masculine stays un.',
+      whyLo: 'Before s + consonant, z, gn, ps, x, y use lo and uno.'
+    }
+  };
+  S.PERSONS = ['io', 'tu', 'lui / lei', 'noi', 'voi', 'loro'];
+  var DETS = ['il', 'lo', "l'", 'la'], INDETS = ['un', 'uno', 'una', "un'"];
+  var GENUS_M = ['maskulin', 'm', 'maschile', 'männlich', 'masculine'], GENUS_F = ['feminin', 'f', 'femminile', 'weiblich', 'feminine'];
+  var KIND = { nomen: 'nomen', noun: 'nomen', substantiv: 'nomen', sostantivo: 'nomen', verb: 'verb', verbo: 'verb',
+    vokabel: 'vokabel', vocab: 'vokabel', wort: 'vokabel', phrase: 'vokabel', wendung: 'vokabel', satz: 'vokabel',
+    regel: 'regel', rule: 'regel', grammatik: 'regel', frage: 'regel', luecke: 'luecke', 'lücke': 'luecke', cloze: 'luecke', lueckensatz: 'luecke' };
+
+  function clean(v) { return String(v == null ? '' : v).replace(/\s+/g, ' ').trim(); }
+  function apo(v) { return clean(v).toLowerCase().replace(/[‘’ʼ`´]/g, "'"); }
+  function list(v) {
+    if (Array.isArray(v)) return v.map(clean).filter(Boolean);
+    v = clean(v); return v ? v.split(/\s*\/\s*/).filter(Boolean) : [];
+  }
+  function join(art, word) { return /'$/.test(art) ? art + word : art + ' ' + word; }
+  function wordCount(s) { return clean(s).split(' ').filter(Boolean).length; }
+
+  /* Wandelt einen Datensatz von Claude in Lernkarten um. Ungültige Datensätze ergeben []. */
+  S.expand = function (r, lang) {
+    var T = S.TXT[lang] || S.TXT.de, out = [];
+    if (!r || typeof r !== 'object') return out;
+    var k = KIND[clean(r.k || r.typ || r.type).toLowerCase()] || '', info = clean(r.info), src = clean(r.src), thema = clean(r.thema);
+    function card(c) {
+      c.info = info; c.src = src;
+      c.key = c.kind + ':' + S.norm(c.front) + (c.tag ? ':' + S.norm(c.tag) : '');
+      delete c.tag;
+      out.push(c);
+    }
+
+    if (k === 'nomen') {
+      var it = clean(r.it), m = clean(r.m);
+      if (/^(?:(?:il|lo|la|un|uno|una)\s+|(?:l|un)['\u2019]\s*)\S/i.test(it)) it = it.replace(/^(?:(?:il|lo|la|un|uno|una)\s+|(?:l|un)['\u2019]\s*)/i, '');
+      if (!it || !m) return out;
+      var gs = apo(r.g), g0 = gs.charAt(0);
+      var g = /[\/,;+]|\s(e|o|und|oder|and|or)\s|^m\W*f\W*$|^f\W*m\W*$/.test(gs) ? 'm/f' : (g0 === 'f' || g0 === 'w') ? 'f' : g0 === 'm' ? 'm' : '';
+      var dets = list(apo(r.det)).filter(function (d) { return DETS.indexOf(d) >= 0; });
+      var indets = list(apo(r.indet)).filter(function (d) { return INDETS.indexOf(d) >= 0; });
+      var alts = list(r.alt), pl = clean(r.pl);
+      var full = dets.map(function (d) { return join(d, it); });
+      var fullIndet = indets.map(function (d) { return join(d, it); });
+      var back = '**' + (full.length ? full.join(' / ') : it) + '**' +
+        (fullIndet.length ? ' · *' + fullIndet.join(' / ') + '*' : '') + ' — ' + m +
+        (pl ? '\n' + T.plural + ': *' + pl + '*' : '');
+      var fields = [];
+      if (g) fields.push({ l: T.genus, s: T.genusS, a: g, opts: ['m', 'f', 'm/f'] });
+      if (dets.length === 1) fields.push({ l: T.det, s: T.detS, a: dets[0], opts: DETS });
+      if (indets.length === 1) fields.push({ l: T.indet, s: T.indetS, a: indets[0], opts: INDETS });
+      fields.push({ l: T.meaning, s: T.meaningS, a: m, lenient: true });
+      var why = '';
+      if (dets.length === 1 && dets[0] === "l'") why = T.whyVowel + (indets.length === 1 ? ' ' + (indets[0] === "un'" ? T.whyUnF : indets[0] === 'un' ? T.whyUnM : '') : '');
+      else if (dets.length === 1 && dets[0] === 'lo') why = T.whyLo;
+      card({ kind: 'noun', eyebrow: thema || T.noun, front: it, frontIt: true, sub: T.nounSub, fields: fields, back: back, why: why.trim() });
+      if (full.length) {
+        var acc = full.slice(1);
+        alts.forEach(function (a) { dets.forEach(function (d) { acc.push(join(d, a)); }); });
+        card({ kind: 'prod', eyebrow: T.prod, front: m, sub: T.prodSub, tag: it,
+          fields: [{ l: T.italian, a: full[0], alt: acc, it: true }], back: back, why: why.trim() });
+      }
+      if (pl && full.length) {
+        card({ kind: 'plural', eyebrow: T.plural, front: full[0], frontIt: true, sub: T.pluralSub,
+          fields: [{ l: T.plural, a: pl, alt: list(r.plalt), it: true }], back: '**' + pl + '** — ' + m });
+      }
+      return out;
+    }
+
+    if (k === 'verb') {
+      var inf = clean(r.inf), vm = clean(r.m), tempus = clean(r.tempus) || 'Presente';
+      if (!inf) return out;
+      var fo = r.formen || r.forms;
+      if (fo && !Array.isArray(fo) && typeof fo === 'object') fo = Object.keys(fo).map(function (key) { return fo[key]; });
+      var formen = Array.isArray(fo) ? fo.map(clean) : [];
+      if (formen.length === 6 && formen.every(Boolean)) {
+        var vfields = formen.map(function (f, i) {
+          var opts = f.split(/\s*\/\s*/).map(function (x) {
+            return x.replace(/^(io|tu|lui|lei|noi|voi|loro)\s+/i, '');
+          }).filter(Boolean);
+          return { l: S.PERSONS[i], a: opts[0], alt: opts.slice(1), it: true };
+        });
+        card({ kind: 'conj', eyebrow: T.conj + ' · ' + tempus, front: inf, frontIt: true, tag: tempus,
+          sub: (vm ? vm + ' · ' : '') + T.conjSub, fields: vfields,
+          back: vfields.map(function (f, i) { return S.PERSONS[i] + ' **' + f.a + '**'; }).join(' · ') });
+      }
+      if (vm) {
+        card({ kind: 'voc', eyebrow: T.voc, front: inf, frontIt: true, sub: T.toMe, tag: 'it',
+          fields: [{ l: T.meaning, s: T.meaningS, a: vm, lenient: true }], back: '**' + inf + '** — ' + vm });
+        card({ kind: 'voc', eyebrow: T.voc, front: vm, sub: T.toIt, tag: 'me',
+          fields: [{ l: T.italian, a: inf, it: true }], back: '**' + inf + '** — ' + vm });
+      }
+      return out;
+    }
+
+    if (k === 'vokabel') {
+      var vit = clean(r.it), vme = clean(r.m);
+      if (!vit || !vme) return out;
+      var short = wordCount(vit) <= 4, vback = '**' + vit + '** — ' + vme;
+      card({ kind: 'voc', eyebrow: thema || T.voc, front: vit, frontIt: true, sub: T.toMe, tag: 'it',
+        fields: short ? [{ l: T.meaning, s: T.meaningS, a: vme, lenient: true }] : [], back: vback });
+      card({ kind: 'voc', eyebrow: thema || T.voc, front: vme, sub: T.toIt, tag: 'me',
+        fields: short ? [{ l: T.italian, a: vit, alt: list(r.alt), it: true }] : [], back: vback });
+      return out;
+    }
+
+    if (k === 'regel') {
+      var q = clean(r.q), a = String(r.a == null ? '' : r.a).trim();
+      if (!q || !a) return out;
+      var kurz = list(r.kurz);
+      if (kurz.length) {
+        var k0 = S.norm(kurz[0]);
+        if (GENUS_M.indexOf(k0) >= 0) kurz = kurz.concat(GENUS_M); else if (GENUS_F.indexOf(k0) >= 0) kurz = kurz.concat(GENUS_F);
+      }
+      card({ kind: 'rule', eyebrow: thema || T.rule, front: q, sub: '',
+        fields: kurz.length ? [{ l: T.answer, a: kurz[0], alt: kurz.slice(1), it: true }] : [], back: a });
+      return out;
+    }
+
+    if (k === 'luecke') {
+      var satz = clean(r.satz).replace(/_{3,}/g, '___'), la = clean(r.a), lm = clean(r.m);
+      if (!satz || !la || satz.indexOf('___') < 0) return out;
+      card({ kind: 'cloze', eyebrow: thema || T.cloze, front: satz, frontIt: true, sub: lm || T.clozeSub,
+        fields: [{ l: T.gap, a: la, alt: list(r.alt), it: true }],
+        back: satz.replace('___', '**' + la + '**') + (lm ? '\n' + lm : '') });
+      return out;
+    }
+    return out;
+  };
+
+  /* Datensätze -> Karten, ohne Dubletten */
+  S.cardsFromRecords = function (records, lang, seen) {
+    var cards = [];
+    seen = seen || {};
+    records.forEach(function (r) {
+      S.expand(r, lang).forEach(function (c) {
+        if (seen[c.key]) return;
+        seen[c.key] = 1; cards.push(c);
+      });
+    });
+    return cards;
+  };
+
+  /* ---------- Antwort von Claude lesen ----------
+     Erwartet JSON Lines, verträgt aber auch ein Array oder umbrochene Objekte.
+     Unvollständige Objekte am Ende (Stream läuft noch) werden ignoriert. */
+  S.parseRecords = function (text) {
+    var recs = [], bad = 0, depth = 0, inStr = false, esc = false, start = -1;
+    text = String(text || '');
+    for (var i = 0; i < text.length; i++) {
+      var ch = text.charAt(i);
+      if (inStr) {
+        if (ch === '\n') { inStr = false; esc = false; depth = 0; start = -1; bad++; continue; }
+        if (esc) esc = false; else if (ch === '\\') esc = true; else if (ch === '"') inStr = false;
+        continue;
+      }
+      if (ch === '"') { if (depth > 0) inStr = true; continue; }
+      if (ch === '{') { if (depth === 0) start = i; depth++; }
+      else if (ch === '}' && depth > 0) {
+        depth--;
+        if (depth === 0 && start >= 0) {
+          try { recs.push(JSON.parse(text.slice(start, i + 1))); } catch (e) { bad++; }
+          start = -1;
+        }
+      }
+    }
+    return { records: recs, bad: bad };
+  };
+
+  /* Kurzname eines Datensatzes, für die Liste "bereits vorhanden" */
+  S.recordName = function (r) { return String(r.it || r.inf || r.q || r.satz || '').slice(0, 60); };
+
+  /* ---------- Material in Portionen teilen ----------
+     blocks: [{text, images:[{blob,label}]}] (Seite / Folie / Abschnitt) -> [{text, images}] */
+  S.chunkBlocks = function (blocks, maxChars, maxImages) {
+    var chunks = [], cur = null;
+    function start() { cur = { text: '', images: [] }; chunks.push(cur); }
+    function addLine(t) { cur.text += (cur.text ? '\n' : '') + t; }
+    blocks.forEach(function (b) {
+      var text = b.text || '', imgs = (b.images || []).slice(0, maxImages);
+      if (text.length <= maxChars) {
+        if (!cur || cur.text.length + text.length + 2 > maxChars || cur.images.length + imgs.length > maxImages) start();
+        if (cur.text) cur.text += '\n';
+        addLine(text);
+        imgs.forEach(function (im) { cur.images.push(im); });
+        return;
+      }
+      start();
+      imgs.forEach(function (im) { cur.images.push(im); });
+      var header = null, inTable = false;
+      text.split('\n').forEach(function (line) {
+        var isRow = /^\s*\|/.test(line);
+        if (isRow && !inTable) header = line;
+        inTable = isRow;
+        if (cur.text && cur.text.length + line.length + 1 > maxChars) {
+          start();
+          if (isRow && header && header !== line) addLine(header);
+        }
+        addLine(line);
+      });
+    });
+    return chunks.filter(function (c) { return c.text.trim() || c.images.length; });
+  };
+
+  /* ---------- Prompt ---------- */
+  S.buildPrompt = function (o) {
+    var en = o.lang === 'en', L = en ? 'Englisch' : 'Deutsch';
+    var kinds = o.kinds || {};
+    function on(k) { return kinds[k] !== false; }
+    var amount = {
+      kompakt: 'Kompakt: nur die wichtigsten Regeln (höchstens 5 "regel", höchstens 3 "luecke").',
+      normal: 'Normal: jede im Material erkennbare Regel einmal, dazu 4 bis 8 "luecke" zum Anwenden.',
+      gruendlich: 'Gründlich: jede Regel und jede Ausnahme einzeln, dazu 8 bis 15 "luecke", auch gemischte.'
+    }[o.amount || 'normal'];
+    var types = [];
+    if (on('nomen')) types.push(
+      '{"k":"nomen","it":"amico","g":"m","det":"l\'","indet":"un","m":"' + (en ? 'the friend' : 'der Freund') + '","src":"S. 1"}\n' +
+      '   Jedes Nomen genau einmal. it = Singular ohne Artikel. g = "m", "f" oder "m/f". det = il | lo | l\' | la (bei m/f z. B. "il/la"). indet = un | uno | una | un\'. ' +
+      'm = Bedeutung auf ' + L + (en ? ' mit "the"' : ' mit Artikel (der/die/das)') + ', mehrere durch "; " getrennt. ' +
+      'Optional: "alt":["bici"] für Kurz- oder Nebenformen; "pl":"gli amici" (Plural mit Artikel) nur, wenn das Material den Plural behandelt; ' +
+      '"info" nur bei einer echten Besonderheit (z. B. Genus nicht an der Endung erkennbar), höchstens ein Satz.');
+    if (on('verb')) types.push(
+      '{"k":"verb","inf":"parlare","m":"' + (en ? 'to speak' : 'sprechen') + '","tempus":"Presente","formen":["parlo","parli","parla","parliamo","parlate","parlano"],"info":"' + (en ? 'regular, -are' : 'regelmäßig, -are') + '","src":"Folie 2"}\n' +
+      '   Jedes Verb des Materials. formen = genau 6 Formen ohne Pronomen in der Reihenfolge io, tu, lui/lei, noi, voi, loro. ' +
+      'Zeigt das Material nur einzelne Formen oder nur den Infinitiv, ergänze das vollständige Presente. Für jedes weitere Tempus, das im Material vorkommt, eine eigene Zeile.');
+    if (on('vokabel')) types.push(
+      '{"k":"vokabel","it":"buongiorno","m":"' + (en ? 'good morning; hello' : 'guten Tag; guten Morgen') + '","src":"S. 1"}\n' +
+      '   Alles, was weder Nomen noch Verb ist: Adjektive, Adverbien, Präpositionen, Wendungen, kurze Beispielsätze.');
+    if (on('regel')) types.push(
+      '{"k":"regel","thema":"' + (en ? 'Definite article' : 'Bestimmter Artikel') + '","q":"' +
+      (en ? 'Which definite article goes before masculine singular nouns beginning with a consonant, such as *gatto*?'
+          : 'Welcher bestimmte Artikel steht vor maskulinen Nomen im Singular, die mit einem Konsonanten beginnen, z. B. *gatto*?') +
+      '","a":"**il** – *il gatto, il cane, il libro*","kurz":["il"],"src":"S. 1"}\n' +
+      '   Eine Frage pro Regel oder Ausnahme; die Frage darf die Antwort nicht verraten. a = kurze Antwort, der Kern fett (**…**), italienische Wörter kursiv (*…*), dann 2 bis 3 Beispiele, möglichst aus dem Material. ' +
+      '"kurz" nur angeben, wenn sich die Antwort in höchstens drei Wörtern eintippen lässt (ein Artikel, eine Endung, eine Verbform); dann alle akzeptierten Schreibweisen auflisten. thema = kurzes Etikett für das Grammatikthema.');
+    if (on('luecke')) types.push(
+      '{"k":"luecke","thema":"' + (en ? 'Definite article' : 'Bestimmter Artikel') + '","satz":"___ amico di Marco è simpatico.","a":"L\'","m":"' +
+      (en ? 'Marco\'s friend is nice.' : 'Marcos Freund ist sympathisch.') + '","info":"' + (en ? 'before a vowel' : 'vor Vokal') + '"}\n' +
+      '   Kurzer Satz mit genau einer Lücke (drei Unterstriche), in dem man eine Regel anwendet und nur eine Lösung passt. Nur Wörter aus dem Material oder sehr einfache Wörter. m = Übersetzung auf ' + L + '. Optional "alt":[…] für weitere richtige Lösungen.');
+
+    var where = o.pdf ? 'Das Material ist das angehängte PDF' + (o.name ? ' (' + o.name + ')' : '') + '.'
+      : 'Das Material steht oben zwischen <material> und </material>' + (o.hasImages ? '; die beigefügten Bilder gehören dazu' : '') + '.';
+    var lines = [
+      'Du bist ein erfahrener Italienischlehrer und erstellst Lernkarten für eine Karteikarten-App mit Wiederholsystem.',
+      'Die lernende Person spricht ' + L + ' und lernt Italienisch.',
+      '',
+      'AUFGABE',
+      'Analysiere das Unterrichtsmaterial (Arbeitsblatt, Folien oder Skript). ' + where + ' ' +
+      'Erzeuge daraus Lernkarten, mit denen man nicht nur Wörter lernt, sondern die Struktur der Sprache versteht: Genus und Artikel, Konjugation, Satzbau, Regeln und ihre Ausnahmen.',
+      '',
+      'SO GEHST DU VOR',
+      '1. Erkenne, was das Material üben will. Hat ein Arbeitsblatt leere Spalten oder Lücken (z. B. Spalten für Genus, Artikel und Bedeutung neben einer Wortliste), dann fülle sie selbst korrekt aus: Die Lösungen sind der Lernstoff.',
+      '2. Bei Wortlisten und Tabellen: Erfasse jedes italienische Wort genau einmal im passenden Kartentyp, lass keines aus. Bei Fließtexten und Dialogen: Erfasse den Lernwortschatz (neue, inhaltstragende Wörter und Wendungen), nicht jedes Funktionswort. Setze durch Zeilenumbruch getrennte Wortteile wieder zusammen.',
+      '3. Leite die Regeln ab, die das Material zeigt oder voraussetzt (z. B. wann il, lo, l\', la und un, uno, una, un\' stehen; was die Endungen -o, -a, -e über das Genus sagen; die Endungen einer Konjugation) und erzeuge dazu "regel"-Karten.',
+      '4. Erzeuge "regel"-Karten auch für die Stolperfallen, die im Material tatsächlich vorkommen (z. B. Nomen auf -e, deren Genus man mitlernen muss; Maskulina auf -a; unregelmäßige Formen).',
+      '5. Bleib beim Material. Ergänze nur, was zum Verstehen nötig ist: fehlende Übersetzung, Genus, Artikel, vollständige Konjugation eines vorkommenden Verbs, die Regel hinter den Beispielen.',
+      '6. Prüfe jede italienische Form: Akzente (caffè, città, è), Apostroph (l\'amico, un\'amica), Doppelkonsonanten.',
+      '',
+      'UMFANG',
+      amount,
+      '',
+      'AUSGABEFORMAT',
+      'Gib ausschließlich JSON Lines aus: pro Zeile genau ein JSON-Objekt. Keine Einleitung, kein Markdown, keine Codeblöcke, kein Schlusssatz.',
+      'Fragen, Erklärungen und Bedeutungen auf ' + L + '. "src" = Fundstelle (z. B. "S. 2" oder "Folie 3", so wie im Material markiert); weglassen, wenn keine erkennbar ist.',
+      'Erlaubte Kartentypen, je mit Beispielzeile. Die Beispielzeilen zeigen nur das Format: Übernimm ihren Inhalt nicht, wenn er im Material nicht vorkommt.',
+      ''
+    ];
+    types.forEach(function (t, i) { lines.push((i + 1) + ') ' + t); });
+    lines.push('');
+    lines.push('Reihenfolge: zuerst die Wörter in der Reihenfolge des Materials, danach die Regeln' + (on('luecke') ? ', zuletzt die Lückensätze' : '') + '.');
+    if (o.known && o.known.length) {
+      lines.push('');
+      lines.push('BEREITS VORHANDEN (nicht noch einmal ausgeben): ' + o.known.join(' | '));
+    }
+    if (o.cont) {
+      lines.push('');
+      lines.push('Die vorige Antwort wurde abgeschnitten. Gib jetzt nur die Karten aus, die noch fehlen.');
+    }
+    return lines.join('\n');
+  };
+
+  S.materialText = function (o) {
+    return 'MATERIAL: ' + (o.name || 'Text') + (o.parts > 1 ? ' (Teil ' + o.part + ' von ' + o.parts + ')' : '') +
+      '\n<material>\n' + o.text + '\n</material>';
+  };
+
+  if (typeof module !== 'undefined' && module.exports) module.exports = S;
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+S = globalThis.S = globalThis.S || {}; S.VERSION = "1.0"; S.SEED = "{\"k\":\"nomen\",\"it\":\"amico\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Freund\"}\n{\"k\":\"nomen\",\"it\":\"autobus\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Bus\",\"info\":\"Endet auf Konsonant: Fremdwort, maskulin.\"}\n{\"k\":\"nomen\",\"it\":\"amore\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"die Liebe\",\"info\":\"Wörter auf -ore sind maskulin.\"}\n{\"k\":\"nomen\",\"it\":\"autunno\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Herbst\"}\n{\"k\":\"nomen\",\"it\":\"aereo\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"das Flugzeug\"}\n{\"k\":\"nomen\",\"it\":\"acqua\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"das Wasser\"}\n{\"k\":\"nomen\",\"it\":\"appartamento\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"die Wohnung\"}\n{\"k\":\"nomen\",\"it\":\"autostrada\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"die Autobahn\"}\n{\"k\":\"nomen\",\"it\":\"aeroporto\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Flughafen\"}\n{\"k\":\"nomen\",\"it\":\"antipasto\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"die Vorspeise\"}\n{\"k\":\"nomen\",\"it\":\"bambino\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Kind; der Junge\"}\n{\"k\":\"nomen\",\"it\":\"biblioteca\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"die Bibliothek\"}\n{\"k\":\"nomen\",\"it\":\"birra\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Bier\"}\n{\"k\":\"nomen\",\"it\":\"bicicletta\",\"alt\":[\"bici\"],\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Fahrrad\",\"info\":\"Kurzform: la bici.\"}\n{\"k\":\"nomen\",\"it\":\"bocca\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"der Mund\"}\n{\"k\":\"nomen\",\"it\":\"biscotto\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Keks\"}\n{\"k\":\"nomen\",\"it\":\"caffè\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Kaffee\",\"info\":\"Mit Akzent schreiben: caffè.\"}\n{\"k\":\"nomen\",\"it\":\"carne\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Fleisch\",\"info\":\"Nomen auf -e: Genus mitlernen.\"}\n{\"k\":\"nomen\",\"it\":\"cuoco\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Koch\"}\n{\"k\":\"nomen\",\"it\":\"cantante\",\"g\":\"m/f\",\"det\":\"il/la\",\"indet\":\"un/una\",\"m\":\"der Sänger; die Sängerin\",\"info\":\"Eine Form für beide, nur der Artikel wechselt.\"}\n{\"k\":\"nomen\",\"it\":\"canzone\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Lied\",\"info\":\"Nomen auf -e: Genus mitlernen.\"}\n{\"k\":\"nomen\",\"it\":\"cane\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Hund\",\"info\":\"Nomen auf -e: Genus mitlernen.\"}\n{\"k\":\"nomen\",\"it\":\"cavallo\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Pferd\"}\n{\"k\":\"nomen\",\"it\":\"capello\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Haar\",\"info\":\"Ein einzelnes Haar. Die Haare auf dem Kopf: i capelli.\"}\n{\"k\":\"nomen\",\"it\":\"cuore\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Herz\",\"info\":\"Wörter auf -ore sind maskulin.\"}\n{\"k\":\"nomen\",\"it\":\"dolce\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Nachtisch; die Süßspeise\",\"info\":\"Als Adjektiv heißt dolce „süß“.\"}\n{\"k\":\"nomen\",\"it\":\"dottore\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Arzt; der Doktor\",\"info\":\"Wörter auf -ore sind maskulin.\"}\n{\"k\":\"nomen\",\"it\":\"dio\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Gott\"}\n{\"k\":\"nomen\",\"it\":\"dito\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Finger\"}\n{\"k\":\"nomen\",\"it\":\"dente\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Zahn\",\"info\":\"Nomen auf -e: Genus mitlernen.\"}\n{\"k\":\"nomen\",\"it\":\"elefante\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Elefant\"}\n{\"k\":\"nomen\",\"it\":\"entrata\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"der Eingang\"}\n{\"k\":\"nomen\",\"it\":\"estate\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"der Sommer\",\"info\":\"Feminin, anders als im Deutschen.\"}\n{\"k\":\"nomen\",\"it\":\"frutto\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"die Frucht\",\"info\":\"Die einzelne Frucht. Obst allgemein: la frutta.\"}\n{\"k\":\"nomen\",\"it\":\"fragola\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"die Erdbeere\"}\n{\"k\":\"nomen\",\"it\":\"finestra\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Fenster\"}\n{\"k\":\"nomen\",\"it\":\"formaggio\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Käse\"}\n{\"k\":\"nomen\",\"it\":\"fratello\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Bruder\"}\n{\"k\":\"nomen\",\"it\":\"fine\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Ende\",\"info\":\"Nomen auf -e: Genus mitlernen.\"}\n{\"k\":\"nomen\",\"it\":\"farmacia\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"die Apotheke\"}\n{\"k\":\"nomen\",\"it\":\"felicità\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Glück\",\"info\":\"Wörter auf -tà sind feminin.\"}\n{\"k\":\"nomen\",\"it\":\"frase\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"der Satz\",\"info\":\"Nomen auf -e: Genus mitlernen.\"}\n{\"k\":\"nomen\",\"it\":\"fungo\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Pilz\"}\n{\"k\":\"nomen\",\"it\":\"fumo\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Rauch\"}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Welcher bestimmte Artikel steht vor maskulinen Nomen, die mit einem Konsonanten beginnen, z. B. *bambino*?\",\"a\":\"**il** – *il bambino, il cane, il formaggio*\",\"kurz\":[\"il\"]}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Welcher bestimmte Artikel steht vor femininen Nomen, die mit einem Konsonanten beginnen, z. B. *birra*?\",\"a\":\"**la** – *la birra, la finestra, la carne*\",\"kurz\":[\"la\"]}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Welcher bestimmte Artikel steht vor Nomen, die mit einem Vokal beginnen, z. B. *amico* oder *acqua*?\",\"a\":\"**l'** – für beide Genera: *l'amico* (m), *l'acqua* (f), *l'estate* (f)\",\"kurz\":[\"l'\"]}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Wann heißt der maskuline bestimmte Artikel *lo* statt *il*?\",\"a\":\"Vor **s + Konsonant, z, gn, ps, x, y**: *lo studente, lo zio, lo gnocco*.\",\"info\":\"In dieser Wortliste kommt kein solches Wort vor.\"}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Welcher unbestimmte Artikel steht vor maskulinen Nomen wie *bambino* oder *amico*?\",\"a\":\"**un** – vor Konsonant und vor Vokal: *un bambino, un amico, un elefante*\",\"kurz\":[\"un\"]}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Welcher unbestimmte Artikel steht vor femininen Nomen, die mit einem Konsonanten beginnen, z. B. *birra*?\",\"a\":\"**una** – *una birra, una finestra, una frase*\",\"kurz\":[\"una\"]}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Welcher unbestimmte Artikel steht vor femininen Nomen, die mit einem Vokal beginnen, z. B. *acqua*?\",\"a\":\"**un'** – *un'acqua, un'entrata, un'estate*\",\"kurz\":[\"un'\"]}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"*l'amico* und *l'acqua* haben denselben bestimmten Artikel. Woran erkennst du trotzdem das Genus?\",\"a\":\"Am **unbestimmten Artikel**: *un amico* (maskulin, ohne Apostroph) – *un'acqua* (feminin, mit Apostroph).\"}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Wann heißt der maskuline unbestimmte Artikel *uno* statt *un*?\",\"a\":\"In denselben Fällen wie *lo*: vor **s + Konsonant, z, gn, ps, x, y** – *uno studente, uno zio*.\",\"info\":\"In dieser Wortliste kommt kein solches Wort vor.\"}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-o* in der Regel?\",\"a\":\"**maskulin** – *il bambino, il cavallo, l'aeroporto*\",\"kurz\":[\"maskulin\",\"m\",\"maschile\",\"männlich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-a* in der Regel?\",\"a\":\"**feminin** – *la birra, la farmacia, l'autostrada*\",\"kurz\":[\"feminin\",\"f\",\"femminile\",\"weiblich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Was sagt die Endung *-e* über das Genus eines Nomens?\",\"a\":\"**Nichts Sicheres.** Nomen auf *-e* können maskulin oder feminin sein, das Genus lernt man mit: *il cane, il dente, il cuore* – *la carne, la frase, la canzone*.\"}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-ore*, z. B. *amore, cuore, dottore*?\",\"a\":\"**maskulin** – *l'amore, il cuore, il dottore*\",\"kurz\":[\"maskulin\",\"m\",\"maschile\",\"männlich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-tà*, z. B. *felicità*?\",\"a\":\"**feminin** – *la felicità*\",\"kurz\":[\"feminin\",\"f\",\"femminile\",\"weiblich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"*cantante* hat nur eine Form. Wie zeigst du, ob ein Sänger oder eine Sängerin gemeint ist?\",\"a\":\"Mit dem **Artikel**: *il cantante* (der Sänger) – *la cantante* (die Sängerin).\"}\n{\"k\":\"regel\",\"thema\":\"Stolperfallen\",\"q\":\"*estate, fine, frase, carne, canzone*: Welches Genus haben diese Nomen auf *-e*, und was ist daran tückisch?\",\"a\":\"Alle fünf sind **feminin**. Tückisch: Im Deutschen heißt es *der* Sommer und *der* Satz, *das* Ende, *das* Fleisch, *das* Lied.\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ amico di Marco è simpatico.\",\"a\":\"L'\",\"m\":\"Marcos Freund ist sympathisch.\",\"info\":\"vor Vokal\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ birra è fredda.\",\"a\":\"La\",\"m\":\"Das Bier ist kalt.\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ cane ha fame.\",\"a\":\"Il\",\"m\":\"Der Hund hat Hunger.\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ estate è bella.\",\"a\":\"L'\",\"m\":\"Der Sommer ist schön.\",\"info\":\"vor Vokal; estate ist feminin\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"Dov'è ___ farmacia?\",\"a\":\"la\",\"m\":\"Wo ist die Apotheke?\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ dottore parla italiano.\",\"a\":\"Il\",\"m\":\"Der Arzt spricht Italienisch.\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"Vorrei ___ caffè, per favore.\",\"a\":\"un\",\"m\":\"Ich hätte gern einen Kaffee, bitte.\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"Vorrei ___ acqua, per favore.\",\"a\":\"un'\",\"m\":\"Ich hätte gern ein Wasser, bitte.\",\"info\":\"feminin, vor Vokal\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"Marco ha ___ bicicletta.\",\"a\":\"una\",\"m\":\"Marco hat ein Fahrrad.\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"C'è ___ aeroporto qui?\",\"a\":\"un\",\"m\":\"Gibt es hier einen Flughafen?\",\"info\":\"maskulin: un, auch vor Vokal\"}\n";
+/* Schedario – Dateien einlesen: docx, pptx (ZIP + XML), PDF (wird direkt an Claude geschickt), Fotos, Text */
+(function (g) {
+  'use strict';
+  var S = g.S;
+
+  /* ---------- ZIP lesen (docx und pptx sind ZIP-Archive) ---------- */
+  function unzip(buf) {
+    var u8 = new Uint8Array(buf), dv = new DataView(buf), eocd = -1, i;
+    for (i = u8.length - 22; i >= Math.max(0, u8.length - 66000); i--) {
+      if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+    }
+    if (eocd < 0) throw new Error('Die Datei ist kein gültiges Office-Dokument.');
+    var count = dv.getUint16(eocd + 10, true), off = dv.getUint32(eocd + 16, true);
+    var files = {}, order = [], dec = new TextDecoder();
+    for (i = 0; i < count && off + 46 <= u8.length; i++) {
+      if (dv.getUint32(off, true) !== 0x02014b50) break;
+      var nlen = dv.getUint16(off + 28, true), elen = dv.getUint16(off + 30, true), clen = dv.getUint16(off + 32, true);
+      var name = dec.decode(u8.subarray(off + 46, off + 46 + nlen));
+      files[name] = { method: dv.getUint16(off + 10, true), csize: dv.getUint32(off + 20, true), lho: dv.getUint32(off + 42, true) };
+      order.push(name);
+      off += 46 + nlen + elen + clen;
+    }
+    function read(name) {
+      var f = files[name];
+      if (!f) return Promise.resolve(null);
+      var start = f.lho + 30 + dv.getUint16(f.lho + 26, true) + dv.getUint16(f.lho + 28, true);
+      var data = u8.subarray(start, start + f.csize);
+      if (f.method === 0) return Promise.resolve(data);
+      if (f.method !== 8) return Promise.reject(new Error('Unbekannte Komprimierung in der Datei.'));
+      if (typeof DecompressionStream === 'undefined') {
+        return Promise.reject(new Error('Dieser Browser kann Office-Dateien nicht entpacken. Bitte iOS/Safari aktualisieren (ab 16.4).'));
+      }
+      var stream = new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+      return new Response(stream).arrayBuffer().then(function (ab) { return new Uint8Array(ab); });
+    }
+    return {
+      names: order,
+      has: function (n) { return !!files[n]; },
+      bytes: read,
+      text: function (n) { return read(n).then(function (d) { return d ? new TextDecoder().decode(d) : null; }); }
+    };
+  }
+
+  /* ---------- XML-Helfer (Namensräume werden ignoriert) ---------- */
+  function xml(str) { return str ? new DOMParser().parseFromString(str, 'application/xml') : null; }
+  function kids(el) { return el ? Array.prototype.slice.call(el.children || []) : []; }
+  function all(el, local) {
+    var out = [], list = el.getElementsByTagName('*');
+    for (var i = 0; i < list.length; i++) if (list[i].localName === local) out.push(list[i]);
+    return out;
+  }
+  function child(el, local) { var k = kids(el); for (var i = 0; i < k.length; i++) if (k[i].localName === local) return k[i]; return null; }
+  function attr(el, local) {
+    if (!el || !el.attributes) return null;
+    for (var i = 0; i < el.attributes.length; i++) if (el.attributes[i].localName === local) return el.attributes[i].value;
+    return null;
+  }
+  function resolve(base, target) {
+    if (target.charAt(0) === '/') return target.slice(1);
+    var parts = base.split('/'); parts.pop();
+    target.split('/').forEach(function (p) { if (p === '..') parts.pop(); else if (p !== '.') parts.push(p); });
+    return parts.join('/');
+  }
+  function rels(zip, partPath) {
+    var dir = partPath.split('/'), file = dir.pop();
+    var relPath = dir.join('/') + '/_rels/' + file + '.rels';
+    return zip.text(relPath).then(function (t) {
+      var map = {}, doc = xml(t);
+      if (doc) all(doc, 'Relationship').forEach(function (r) {
+        map[attr(r, 'Id')] = { target: resolve(partPath, attr(r, 'Target') || ''), type: attr(r, 'Type') || '', ext: attr(r, 'TargetMode') === 'External' };
+      });
+      return map;
+    });
+  }
+  var MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', bmp: 'image/bmp' };
+  function mediaBlob(zip, path) {
+    var ext = (path.split('.').pop() || '').toLowerCase();
+    if (!MIME[ext]) return Promise.resolve(null);
+    return zip.bytes(path).then(function (d) { return d && d.length > 6000 ? new Blob([d], { type: MIME[ext] }) : null; });
+  }
+  function row(cells) { return '| ' + cells.map(function (c) { return c.replace(/\|/g, '/').replace(/\s+/g, ' ').trim(); }).join(' | ') + ' |'; }
+
+  /* ---------- Word (.docx) ---------- */
+  var PAGE = '\u0001';
+  function wPara(p) {
+    var out = '', brk = false;
+    (function walk(n) {
+      kids(n).forEach(function (c) {
+        var ln = c.localName;
+        if (ln === 't') out += c.textContent;
+        else if (ln === 'tab') out += '\t';
+        else if (ln === 'noBreakHyphen') out += '-';
+        else if (ln === 'lastRenderedPageBreak') brk = true;
+        else if (ln === 'br') { if (attr(c, 'type') === 'page') brk = true; else out += '\n'; }
+        else if (ln !== 'pPr' && ln !== 'rPr' && ln !== 'instrText' && ln !== 'delText') walk(c);
+      });
+    })(p);
+    var pPr = child(p, 'pPr'), style = pPr ? attr(child(pPr, 'pStyle'), 'val') || '' : '';
+    var text = out.replace(/[ \t]+\n/g, '\n').trim();
+    if (text && /^(heading|berschrift|überschrift|titolo|title|titel|titre)/i.test(style)) text = '# ' + text;
+    else if (text && pPr && child(pPr, 'numPr')) text = '- ' + text;
+    return { text: text, brk: brk };
+  }
+  function wCell(tc, state) {
+    var parts = [];
+    all(tc, 'p').forEach(function (p) { var r = wPara(p); if (r.brk) state.brk = true; if (r.text) parts.push(r.text.replace(/\n/g, ' ')); });
+    return parts.join(' / ');
+  }
+  function wBlocks(container, lines, stats) {
+    kids(container).forEach(function (el) {
+      var ln = el.localName;
+      if (ln === 'p') {
+        var r = wPara(el);
+        if (r.brk) lines.push(PAGE);
+        if (r.text) lines.push(r.text);
+      } else if (ln === 'tbl') {
+        stats.tables++;
+        kids(el).forEach(function (tr) {
+          if (tr.localName !== 'tr') return;
+          var st = { brk: false }, cells = kids(tr).filter(function (c) { return c.localName === 'tc'; }).map(function (tc) { return wCell(tc, st); });
+          if (st.brk) lines.push(PAGE);
+          lines.push(row(cells));
+        });
+        lines.push('');
+      } else if (ln === 'sdt') {
+        var content = child(el, 'sdtContent'); if (content) wBlocks(content, lines, stats);
+      }
+    });
+  }
+  function readDocx(buf, name, withImages) {
+    var zip = unzip(buf), stats = { tables: 0, pages: 0, images: 0 };
+    if (!zip.has('word/document.xml')) throw new Error('In der Datei steckt kein Word-Dokument.');
+    return zip.text('word/document.xml').then(function (t) {
+      var doc = xml(t), body = all(doc, 'body')[0], lines = [];
+      wBlocks(body, lines, stats);
+      var headerNames = zip.names.filter(function (n) { return /^word\/header\d*\.xml$/.test(n); });
+      return Promise.all(headerNames.map(function (n) { return zip.text(n); })).then(function (hs) {
+        var seen = {}, head = [];
+        hs.forEach(function (h) {
+          var d = xml(h); if (!d) return;
+          all(d, 'p').forEach(function (p) { var tx = wPara(p).text; if (tx && !seen[tx]) { seen[tx] = 1; head.push(tx); } });
+        });
+        // Seiten: nur markieren, wenn Word Seitenumbrüche gespeichert hat
+        var hasPages = lines.indexOf(PAGE) >= 0, blocks = [], cur = [], page = 1;
+        function flush() {
+          var txt = cur.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+          if (txt) blocks.push({ text: (hasPages ? '[Seite ' + page + ']\n' : '') + txt, images: [] });
+          cur = [];
+        }
+        if (head.length) cur.push('Kopfzeile: ' + head.join(' · '));
+        lines.forEach(function (l) { if (l === PAGE) { flush(); page++; } else cur.push(l); });
+        flush();
+        stats.pages = hasPages ? page : 0;
+        if (!withImages) return blocks;
+        return rels(zip, 'word/document.xml').then(function (map) {
+          var ids = [], used = {};
+          all(doc, 'blip').forEach(function (b) { var id = attr(b, 'embed'); if (id && map[id] && !map[id].ext && !used[id]) { used[id] = 1; ids.push(id); } });
+          return Promise.all(ids.slice(0, 12).map(function (id) { return mediaBlob(zip, map[id].target); })).then(function (blobs) {
+            blobs = blobs.filter(Boolean);
+            stats.images = blobs.length;
+            if (blobs.length) {
+              if (!blocks.length) blocks.push({ text: '', images: [] });
+              blobs.forEach(function (b, i) { blocks[0].images.push({ blob: b, label: 'Bild ' + (i + 1) + ' aus dem Dokument' }); });
+            }
+            return blocks;
+          });
+        });
+      });
+    }).then(function (blocks) {
+      return { name: name, type: 'docx', blocks: blocks, stats: stats };
+    });
+  }
+
+  /* ---------- PowerPoint (.pptx) ---------- */
+  function aPara(p) {
+    var out = '';
+    (function walk(n) {
+      kids(n).forEach(function (c) {
+        var ln = c.localName;
+        if (ln === 't') out += c.textContent;
+        else if (ln === 'br') out += ' ';
+        else if (ln !== 'pPr' && ln !== 'rPr' && ln !== 'endParaRPr') walk(c);
+      });
+    })(p);
+    return out.replace(/\s+/g, ' ').trim();
+  }
+  function txBodyLines(tx) {
+    return kids(tx).filter(function (c) { return c.localName === 'p'; }).map(aPara).filter(Boolean);
+  }
+  function pTree(node, lines, pics, stats) {
+    kids(node).forEach(function (el) {
+      var ln = el.localName;
+      if (ln === 'sp') {
+        var tx = child(el, 'txBody'); if (!tx) return;
+        var nv = child(el, 'nvSpPr'), ph = nv ? all(nv, 'ph')[0] : null, type = attr(ph, 'type') || '';
+        if (/^(sldNum|dt|ftr)$/.test(type)) return;
+        var ls = txBodyLines(tx);
+        if (!ls.length) return;
+        if (/title/i.test(type)) lines.push('# ' + ls.join(' '));
+        else ls.forEach(function (l) { lines.push(ls.length > 1 ? '- ' + l : l); });
+      } else if (ln === 'graphicFrame') {
+        all(el, 'tbl').forEach(function (tbl) {
+          stats.tables++;
+          kids(tbl).forEach(function (tr) {
+            if (tr.localName !== 'tr') return;
+            lines.push(row(kids(tr).filter(function (c) { return c.localName === 'tc'; }).map(function (tc) {
+              var tx = child(tc, 'txBody'); return tx ? txBodyLines(tx).join(' / ') : '';
+            })));
+          });
+          lines.push('');
+        });
+      } else if (ln === 'pic') {
+        var blip = all(el, 'blip')[0], id = attr(blip, 'embed'); if (id) pics.push(id);
+      } else if (ln === 'grpSp') pTree(el, lines, pics, stats);
+    });
+  }
+  function readPptx(buf, name, withImages) {
+    var zip = unzip(buf), stats = { tables: 0, slides: 0, images: 0 };
+    var fallback = zip.names.filter(function (n) { return /^ppt\/slides\/slide\d+\.xml$/.test(n); })
+      .sort(function (a, b) { return parseInt(a.match(/(\d+)\.xml$/)[1], 10) - parseInt(b.match(/(\d+)\.xml$/)[1], 10); });
+    if (!fallback.length) throw new Error('In der Datei stecken keine Folien.');
+    var order = Promise.all([zip.text('ppt/presentation.xml'), rels(zip, 'ppt/presentation.xml')]).then(function (r) {
+      var doc = xml(r[0]), map = r[1], list = [];
+      if (doc) all(doc, 'sldId').forEach(function (s) { var id = attr(s, 'id'); var rid = null;
+        for (var i = 0; i < s.attributes.length; i++) if (s.attributes[i].localName === 'id' && s.attributes[i].prefix) rid = s.attributes[i].value;
+        if (rid && map[rid] && zip.has(map[rid].target)) list.push(map[rid].target); void id; });
+      return list.length ? list : fallback;
+    }).catch(function () { return fallback; });
+    return order.then(function (paths) {
+      stats.slides = paths.length;
+      var blocks = [], chain = Promise.resolve();
+      paths.forEach(function (path, idx) {
+        chain = chain.then(function () {
+          return Promise.all([zip.text(path), rels(zip, path)]).then(function (r) {
+            var doc = xml(r[0]), map = r[1], lines = [], pics = [];
+            var tree = all(doc, 'spTree')[0];
+            if (tree) pTree(tree, lines, pics, stats);
+            var notes = null;
+            Object.keys(map).forEach(function (k) { if (/notesSlide$/.test(map[k].type)) notes = map[k].target; });
+            var pNotes = notes ? zip.text(notes).then(function (nt) {
+              var nd = xml(nt), out = [];
+              if (nd) all(nd, 'sp').forEach(function (sp) {
+                var ph = all(sp, 'ph')[0];
+                if (attr(ph, 'type') === 'body') { var tx = child(sp, 'txBody'); if (tx) out = out.concat(txBodyLines(tx)); }
+              });
+              if (out.length) lines.push('Notizen: ' + out.join(' '));
+            }) : Promise.resolve();
+            var pPics = withImages ? Promise.all(pics.slice(0, 3).map(function (id) {
+              return map[id] && !map[id].ext ? mediaBlob(zip, map[id].target) : null;
+            })) : Promise.resolve([]);
+            return Promise.all([pNotes, pPics]).then(function (rr) {
+              var imgs = (rr[1] || []).filter(Boolean).map(function (b) { return { blob: b, label: 'Bild auf Folie ' + (idx + 1) }; });
+              stats.images += imgs.length;
+              var txt = lines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+              if (txt || imgs.length) blocks.push({ text: '[Folie ' + (idx + 1) + ']\n' + txt, images: imgs });
+            });
+          });
+        });
+      });
+      return chain.then(function () { return { name: name, type: 'pptx', blocks: blocks, stats: stats }; });
+    });
+  }
+
+  /* ---------- Bilder verkleinern und als Base64 liefern ---------- */
+  function loadImage(blob) {
+    if (g.createImageBitmap) return g.createImageBitmap(blob).catch(function () { return viaImg(blob); });
+    return viaImg(blob);
+  }
+  function viaImg(blob) {
+    return new Promise(function (res, rej) {
+      var url = URL.createObjectURL(blob), img = new Image();
+      img.onload = function () { URL.revokeObjectURL(url); res(img); };
+      img.onerror = function () { URL.revokeObjectURL(url); rej(new Error('Bild kann nicht gelesen werden.')); };
+      img.src = url;
+    });
+  }
+  S.imageToB64 = function (blob, maxSide) {
+    maxSide = maxSide || 1568;
+    return loadImage(blob).then(function (img) {
+      var w = img.width, h = img.height, k = Math.min(1, maxSide / Math.max(w, h));
+      var cv = document.createElement('canvas');
+      cv.width = Math.max(1, Math.round(w * k)); cv.height = Math.max(1, Math.round(h * k));
+      var ctx = cv.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height);
+      ctx.drawImage(img, 0, 0, cv.width, cv.height);
+      if (img.close) img.close();
+      return cv.toDataURL('image/jpeg', 0.85).split(',')[1];
+    });
+  };
+  S.fileToB64 = function (file) {
+    return new Promise(function (res, rej) {
+      var fr = new FileReader();
+      fr.onload = function () { res(String(fr.result).split(',')[1] || ''); };
+      fr.onerror = function () { rej(new Error('Datei kann nicht gelesen werden.')); };
+      fr.readAsDataURL(file);
+    });
+  };
+  function readBuf(file) {
+    if (file.arrayBuffer) return file.arrayBuffer();
+    return new Promise(function (res, rej) {
+      var fr = new FileReader();
+      fr.onload = function () { res(fr.result); };
+      fr.onerror = function () { rej(new Error('Datei kann nicht gelesen werden.')); };
+      fr.readAsArrayBuffer(file);
+    });
+  }
+
+  /* ---------- Einstieg: eine Datei -> Material ---------- */
+  S.MAX_PDF = 30 * 1024 * 1024;
+  S.readFile = function (file, withImages) {
+    var name = file.name || 'Datei', ext = (name.split('.').pop() || '').toLowerCase(), type = file.type || '';
+    if (ext === 'docx') return readBuf(file).then(function (b) { return readDocx(b, name, withImages); });
+    if (ext === 'pptx') return readBuf(file).then(function (b) { return readPptx(b, name, withImages); });
+    if (ext === 'pdf' || type === 'application/pdf') {
+      if (file.size > S.MAX_PDF) return Promise.reject(new Error('Das PDF ist größer als 30 MB. Bitte teilen oder verkleinern.'));
+      return S.fileToB64(file).then(function (b64) {
+        return { name: name, type: 'pdf', blocks: [], pdf: { b64: b64, size: file.size }, stats: {} };
+      });
+    }
+    if (/^image\//.test(type) || /^(jpe?g|png|gif|webp|heic|heif|bmp)$/.test(ext)) {
+      return Promise.resolve({ name: name, type: 'image', stats: { images: 1 },
+        blocks: [{ text: '[Foto: ' + name + ']', images: [{ blob: file, label: name }] }] });
+    }
+    if (ext === 'doc' || ext === 'ppt') {
+      return Promise.reject(new Error('Alte Office-Formate (.' + ext + ') kann die App nicht lesen. Bitte als .' + ext + 'x speichern.'));
+    }
+    if (/^text\//.test(type) || /^(txt|md|csv)$/.test(ext)) {
+      return file.text().then(function (t) { return { name: name, type: 'text', stats: {}, blocks: [{ text: t.trim(), images: [] }] }; });
+    }
+    return Promise.reject(new Error('Dieses Dateiformat wird nicht unterstützt: .' + ext));
+  };
+  S.materialChars = function (m) { return m.blocks.reduce(function (n, b) { return n + (b.text || '').length; }, 0); };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+/* Schedario – Speicher (auf dem Gerät) und Claude-API (direkt aus dem Browser, mit eigenem API-Key) */
+(function (g) {
+  'use strict';
+  var S = g.S;
+
+  /* ---------- Speicher: localStorage, sonst nur Arbeitsspeicher ---------- */
+  S.store = (function () {
+    var PREFIX = 'schedario:', L = null, mem = {};
+    try {
+      var t = PREFIX + 'probe';
+      g.localStorage.setItem(t, '1'); g.localStorage.removeItem(t);
+      L = g.localStorage;
+    } catch (e) { L = null; }
+    return {
+      persistent: !!L,
+      loadAll: function () {
+        var out = {}, i, k;
+        if (!L) { for (k in mem) out[k] = JSON.parse(mem[k]); return out; }
+        for (i = 0; i < L.length; i++) {
+          k = L.key(i);
+          if (k && k.indexOf(PREFIX) === 0) { try { out[k.slice(PREFIX.length)] = JSON.parse(L.getItem(k)); } catch (e) { /* defekt: überspringen */ } }
+        }
+        return out;
+      },
+      get: function (key) {
+        try { var v = L ? L.getItem(PREFIX + key) : mem[key]; return v == null ? null : JSON.parse(v); } catch (e) { return null; }
+      },
+      set: function (key, obj) {
+        var s = JSON.stringify(obj);
+        try { if (L) L.setItem(PREFIX + key, s); else mem[key] = s; return true; } catch (e) { return false; }
+      },
+      del: function (key) { try { if (L) L.removeItem(PREFIX + key); else delete mem[key]; } catch (e) { /* egal */ } },
+      clear: function () {
+        if (!L) { mem = {}; return; }
+        var keys = [], i;
+        for (i = 0; i < L.length; i++) { var k = L.key(i); if (k && k.indexOf(PREFIX) === 0) keys.push(k); }
+        keys.forEach(function (k) { try { L.removeItem(k); } catch (e) { /* egal */ } });
+      }
+    };
+  })();
+
+  /* ---------- Claude-API ---------- */
+  var API = 'https://api.anthropic.com/v1';
+  S.MODELS = [
+    { id: 'claude-sonnet-5-5', name: 'Claude Sonnet 5.5 (ausgewogen)' },
+    { id: 'claude-opus-5-5', name: 'Claude Opus 5.5 (gründlicher, teurer)' },
+    { id: 'claude-haiku-5-5', name: 'Claude Haiku 5.5 (schnell, günstig)' },
+    { id: 'claude-fable-5-2', name: 'Claude Fable 5.2 (am stärksten, am teuersten)' }
+  ];
+  function headers(key) {
+    return {
+      'content-type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    };
+  }
+  function apiError(status, body) {
+    var detail = '', type = '';
+    try { var j = typeof body === 'string' ? JSON.parse(body) : body; detail = (j.error && j.error.message) || ''; type = (j.error && j.error.type) || ''; } catch (e) { detail = String(body || '').slice(0, 300); }
+    var msg = {
+      401: 'Der API-Key wurde abgelehnt. Bitte in den Optionen prüfen.',
+      403: 'Dieser API-Key darf das nicht (403).',
+      404: 'Das gewählte Modell gibt es für diesen Key nicht. Bitte in den Optionen ein anderes wählen.',
+      413: 'Die Datei ist für eine Anfrage zu groß.',
+      429: 'Zu viele Anfragen oder Guthaben-Limit erreicht. Kurz warten und erneut versuchen.',
+      529: 'Claude ist gerade überlastet. Bitte in einer Minute erneut versuchen.'
+    }[status] || (!status ? 'Claude hat die Antwort abgebrochen.' : status >= 500 ? 'Die Claude-API hat einen Fehler gemeldet (' + status + ').' : 'Die Anfrage wurde abgelehnt (' + status + ').');
+    if (type === 'overloaded_error') msg = 'Claude ist gerade überlastet. Bitte in einer Minute erneut versuchen.';
+    return { code: type || String(status), status: status, message: msg, detail: detail };
+  }
+  function netError(e) {
+    if (e && e.name === 'AbortError') return { code: 'cancelled', message: 'Abgebrochen.' };
+    if (e && e.code) return e;
+    return { code: 'network', message: 'Keine Verbindung zur Claude-API. Bist du online?', detail: String((e && e.message) || e) };
+  }
+
+  S.api = {
+    /* Liste der Modelle, die der Key nutzen darf */
+    models: function (key) {
+      return fetch(API + '/models?limit=100', { headers: headers(key) }).then(function (res) {
+        return res.text().then(function (body) {
+          if (!res.ok) throw apiError(res.status, body);
+          var j = JSON.parse(body);
+          return (j.data || []).map(function (m) { return { id: m.id, name: m.display_name || m.id }; });
+        });
+      }).catch(function (e) { throw netError(e); });
+    },
+
+    /* Eine Anfrage, Antwort wird gestreamt. onText bekommt jeweils den ganzen bisherigen Text. */
+    generate: function (o) {
+      var body = { model: o.model, max_tokens: o.maxTokens || 16000, stream: true, messages: [{ role: 'user', content: o.content }] };
+      var text = '', stop = null, usage = { input: 0, output: 0 };
+      function onEvent(ev) {
+        if (!ev || !ev.type) return;
+        if (ev.type === 'content_block_delta' && ev.delta && ev.delta.type === 'text_delta') {
+          text += ev.delta.text || '';
+          if (o.onText) o.onText(text);
+        } else if (ev.type === 'message_start' && ev.message && ev.message.usage) {
+          usage.input = (ev.message.usage.input_tokens || 0) + (ev.message.usage.cache_read_input_tokens || 0) + (ev.message.usage.cache_creation_input_tokens || 0);
+        } else if (ev.type === 'message_delta') {
+          if (ev.delta && ev.delta.stop_reason) stop = ev.delta.stop_reason;
+          if (ev.usage && ev.usage.output_tokens) usage.output = ev.usage.output_tokens;
+        } else if (ev.type === 'error') {
+          throw apiError(0, ev);
+        }
+      }
+      function feed(chunk, state) {
+        state.buf += chunk;
+        var lines = state.buf.split(/\r?\n/);
+        state.buf = lines.pop();
+        lines.forEach(function (line) {
+          if (line.indexOf('data:') !== 0) return;
+          var data = line.slice(5).trim();
+          if (!data || data === '[DONE]') return;
+          var ev = null;
+          try { ev = JSON.parse(data); } catch (e) { return; }
+          onEvent(ev);
+        });
+      }
+      return fetch(API + '/messages', { method: 'POST', headers: headers(o.key), body: JSON.stringify(body), signal: o.signal })
+        .then(function (res) {
+          if (!res.ok) return res.text().then(function (b) {
+            var err = apiError(res.status, b), ra = parseFloat(res.headers.get('retry-after'));
+            if (ra > 0) err.retryAfter = ra;
+            throw err;
+          });
+          var state = { buf: '' };
+          if (!res.body || !res.body.getReader) {
+            return res.text().then(function (t) { feed(t + '\n', state); });
+          }
+          var reader = res.body.getReader(), dec = new TextDecoder();
+          function pump() {
+            return reader.read().then(function (r) {
+              if (r.done) { feed(dec.decode() + '\n', state); return; }
+              feed(dec.decode(r.value, { stream: true }), state);
+              return pump();
+            });
+          }
+          return pump();
+        })
+        .then(function () {
+          if (stop === 'refusal') throw { code: 'refusal', message: 'Claude hat diese Anfrage abgelehnt.', text: text };
+          return { text: text, truncated: stop === 'max_tokens', stop: stop, usage: usage };
+        })
+        .catch(function (e) { var err = netError(e); if (text && !err.text) err.text = text; throw err; });
+    }
+  };
+
+  /* ---------- Import: Material -> Anfragen -> Karten ---------- */
+  var MAX_CHARS = 10000, MAX_IMAGES = 8;
+  S.RETRY_WAIT = 8000;
+  function sleep(ms, signal) {
+    return new Promise(function (res, rej) {
+      var t = setTimeout(res, ms);
+      if (signal) signal.addEventListener('abort', function () { clearTimeout(t); rej({ code: 'cancelled', message: 'Abgebrochen.' }); });
+    });
+  }
+
+  /* Material (eine oder mehrere Dateien) in einzelne Anfragen aufteilen */
+  S.planJobs = function (materials) {
+    var jobs = [];
+    materials.forEach(function (m) {
+      if (m.pdf) { jobs.push({ name: m.name, pdf: m.pdf, text: '', images: [] }); return; }
+      var chunks = S.chunkBlocks(m.blocks, MAX_CHARS, MAX_IMAGES);
+      chunks.forEach(function (c, i) {
+        jobs.push({ name: m.name, text: c.text, images: c.images, part: i + 1, parts: chunks.length });
+      });
+    });
+    return jobs;
+  };
+
+  function knownList(records) {
+    var out = [], len = 0;
+    for (var i = records.length - 1; i >= 0 && len < 3000; i--) {
+      var n = S.recordName(records[i]); if (!n) continue;
+      out.unshift(n); len += n.length + 3;
+    }
+    return out;
+  }
+
+  /* Führt alle Anfragen nacheinander aus.
+     o: {key, model, lang, kinds, amount, signal, onProgress({job, jobs, cards, phase})}
+     Ergebnis: {cards, records, bad, usage, truncated} */
+  S.runImport = function (jobs, o) {
+    var seen = {}, cards = [], records = [], bad = 0, usage = { input: 0, output: 0 }, truncated = false;
+    var idx = 0;
+
+    function prepImages(job) {
+      return Promise.all(job.images.map(function (im) {
+        if (im.b64) return im;
+        return S.imageToB64(im.blob).then(function (b64) { im.b64 = b64; return im; }).catch(function () { return null; });
+      })).then(function (list) { return list.filter(Boolean); });
+    }
+
+    function runJob(job, round, cont) {
+      return prepImages(job).then(function (images) {
+        var content = [];
+        images.forEach(function (im, i) {
+          content.push({ type: 'text', text: 'Bild ' + (i + 1) + (im.label ? ' (' + im.label + ')' : '') + ':' });
+          content.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: im.b64 } });
+        });
+        if (job.pdf) content.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: job.pdf.b64 }, cache_control: { type: 'ephemeral' } });
+        if (job.text) content.push({ type: 'text', text: S.materialText({ name: job.name, part: job.part, parts: job.parts, text: job.text }) });
+        content.push({ type: 'text', text: S.buildPrompt({
+          lang: o.lang, kinds: o.kinds, amount: o.amount, name: job.name, pdf: !!job.pdf, hasImages: images.length > 0,
+          known: knownList(records), cont: cont
+        }) });
+
+        var last = 0, live = [];
+        function progress(text, final) {
+          var now = Date.now();
+          if (!final && now - last < 350) return;
+          last = now;
+          var parsed = S.parseRecords(text), seenLive = {}, k;
+          for (k in seen) seenLive[k] = 1;
+          live = S.cardsFromRecords(parsed.records, o.lang, seenLive);
+          if (o.onProgress) o.onProgress({ job: idx + 1, jobs: jobs.length, name: job.name, cards: cards.concat(live), round: round });
+        }
+        if (o.onProgress) o.onProgress({ job: idx + 1, jobs: jobs.length, name: job.name, cards: cards, round: round, waiting: true });
+
+        function finish(res) {
+          var parsed = S.parseRecords(res.text);
+          bad += parsed.bad;
+          var fresh = S.cardsFromRecords(parsed.records, o.lang, seen);
+          records = records.concat(parsed.records);
+          cards = cards.concat(fresh);
+          if (res.usage) { usage.input += res.usage.input; usage.output += res.usage.output; }
+          if (o.onProgress) o.onProgress({ job: idx + 1, jobs: jobs.length, name: job.name, cards: cards, round: round });
+          if (res.truncated) {
+            if (round < 2 && parsed.records.length) return runJob(job, round + 1, true);
+            truncated = true;
+          }
+        }
+        function attempt(tries) {
+          return S.api.generate({
+            key: o.key, model: o.model, content: content, maxTokens: job.pdf ? 32000 : 20000, signal: o.signal,
+            onText: function (t) { progress(t, false); }
+          }).catch(function (err) {
+            var busy = err && !err.text && (err.status === 429 || err.status === 529 || err.code === 'overloaded_error' || err.code === 'rate_limit_error');
+            if (!busy || tries >= 2) throw err;
+            var wait = Math.min(60000, err.retryAfter ? err.retryAfter * 1000 : S.RETRY_WAIT * (tries + 1));
+            if (o.onProgress) o.onProgress({ job: idx + 1, jobs: jobs.length, name: job.name, cards: cards, round: round, waiting: true, retry: Math.round(wait / 1000) });
+            return sleep(wait, o.signal).then(function () { return attempt(tries + 1); });
+          });
+        }
+        return attempt(0).then(finish, function (err) {
+          // bereits gestreamte Karten behalten
+          if (err && err.text) {
+            var parsed = S.parseRecords(err.text);
+            cards = cards.concat(S.cardsFromRecords(parsed.records, o.lang, seen));
+            records = records.concat(parsed.records);
+          }
+          err.partial = { cards: cards, records: records, bad: bad, usage: usage };
+          throw err;
+        });
+      });
+    }
+
+    function next() {
+      if (idx >= jobs.length) return { cards: cards, records: records, bad: bad, usage: usage, truncated: truncated };
+      return runJob(jobs[idx], 0, false).then(function () { idx++; return next(); });
+    }
+    return Promise.resolve().then(next);
+  };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+/* Schedario – Oberfläche */
+(function (g) {
+  'use strict';
+  var S = g.S, doc = g.document;
+  function $(id) { return doc.getElementById(id); }
+
+  /* ---------- kleine DOM-Helfer ---------- */
+  function add(el, c) {
+    if (c == null || c === false) return;
+    if (Array.isArray(c)) { c.forEach(function (x) { add(el, x); }); return; }
+    el.appendChild(c.nodeType ? c : doc.createTextNode(String(c)));
+  }
+  function h(tag, attrs) {
+    var el = doc.createElement(tag), k;
+    if (attrs) for (k in attrs) {
+      var v = attrs[k];
+      if (v == null || v === false) continue;
+      if (k === 'class') el.className = v;
+      else if (k === 'html') el.innerHTML = v;
+      else if (k === 'value') el.value = v;
+      else if (k === 'checked') el.checked = !!v;
+      else if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v);
+      else if (v === true) el.setAttribute(k, '');
+      else el.setAttribute(k, v);
+    }
+    for (var i = 2; i < arguments.length; i++) add(el, arguments[i]);
+    return el;
+  }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  /* **fett**, *kursiv* (italienische Wörter), ___ als Lücke */
+  function md(s) {
+    return esc(s).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\*([^*\n]+)\*/g, '<em lang="it">$1</em>')
+      .replace(/_{3,}/g, '<span class="gap"></span>').replace(/\n/g, '<br>');
+  }
+  function plain(s) { return String(s || '').replace(/\*+/g, '').replace(/_{3,}/g, '…'); }
+  function svg(path) {
+    return h('span', { html: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + path + '</svg>', style: 'display:contents' });
+  }
+  var ICON = {
+    x: '<path d="M6 6l12 12M18 6L6 18"/>',
+    chev: '<path d="M9 6l6 6-6 6"/>',
+    back: '<path d="M15 6l-6 6 6 6"/>'
+  };
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+  function num(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+
+  /* ---------- Zustand ---------- */
+  var app = { meta: null, cards: {}, order: {}, key: '', models: null, route: 'heute', last: '', deckId: null, sess: null, imp: null, open: {}, grp: {}, edit: null, keyState: null };
+  S.app = app;
+
+  function freshMeta() {
+    return { v: 1, settings: { newPerDay: 15, strict: false, lang: 'de', model: 'claude-sonnet-5-5', hintOff: false },
+      decks: [], newDay: 0, newCount: 0, doneDay: 0, doneCount: 0, streak: 0, lastStudy: 0 };
+  }
+  function load() {
+    var docs = S.store.loadAll(), base = freshMeta(), k;
+    app.cards = {}; app.order = {};
+    app.key = (docs.key && docs.key.k) || '';
+    app.models = (docs.models && docs.models.list) || null;
+    if (docs.meta && Array.isArray(docs.meta.decks)) {
+      app.meta = docs.meta;
+      for (k in base) if (app.meta[k] === undefined) app.meta[k] = base[k];
+      for (k in base.settings) if (app.meta.settings[k] === undefined) app.meta.settings[k] = base.settings[k];
+      app.meta.decks.forEach(function (d) {
+        var dd = docs['deck:' + d.id];
+        app.order[d.id] = [];
+        ((dd && dd.cards) || []).forEach(function (c) {
+          if (!c || !c.id || !Array.isArray(c.fields)) return;
+          c.deck = d.id; app.cards[c.id] = c; app.order[d.id].push(c.id);
+        });
+      });
+    } else {
+      app.meta = base;
+      var recs = S.parseRecords(S.SEED || '').records;
+      if (recs.length) addDeck({ name: 'Lezione 2 · Parole', src: 'Beispiel aus deinem Arbeitsblatt (A–F)', example: true }, S.cardsFromRecords(recs, 'de'));
+    }
+  }
+  var warned = false;
+  function saved(ok) {
+    if (ok || warned) return;
+    warned = true;
+    toast(S.store.persistent ? 'Speicher voll. Bitte ein Backup exportieren und alte Decks löschen.' : 'Dieser Browser speichert nichts dauerhaft (privater Modus?).', 6000);
+  }
+  function saveMeta() { saved(S.store.set('meta', app.meta)); }
+  function saveDeck(id) {
+    var list = (app.order[id] || []).map(function (cid) { var c = Object.assign({}, app.cards[cid]); delete c.deck; return c; });
+    saved(S.store.set('deck:' + id, { cards: list }));
+  }
+  function deckById(id) { for (var i = 0; i < app.meta.decks.length; i++) if (app.meta.decks[i].id === id) return app.meta.decks[i]; return null; }
+  function addCards(deckId, cards) {
+    var have = {}, n = 0;
+    app.order[deckId].forEach(function (id) { have[app.cards[id].key] = 1; });
+    cards.forEach(function (c) {
+      if (c.key && have[c.key]) return;
+      var card = Object.assign({}, c, { id: S.uid() + n, deck: deckId, p: 0, due: 0, ok: 0, ko: 0 });
+      delete card.keep;
+      app.cards[card.id] = card; app.order[deckId].push(card.id); have[c.key] = 1; n++;
+    });
+    saveDeck(deckId);
+    return n;
+  }
+  function addDeck(info, cards) {
+    var deck = { id: S.uid(), name: info.name, src: info.src || '', example: !!info.example, created: S.now() };
+    app.meta.decks.push(deck); app.order[deck.id] = [];
+    addCards(deck.id, cards);
+    saveMeta();
+    return deck;
+  }
+  function removeDeck(id) {
+    (app.order[id] || []).forEach(function (cid) { delete app.cards[cid]; });
+    delete app.order[id];
+    app.meta.decks = app.meta.decks.filter(function (d) { return d.id !== id; });
+    S.store.del('deck:' + id); saveMeta();
+  }
+  function idsOf(deckId) {
+    if (deckId) return app.order[deckId] || [];
+    var out = [];
+    app.meta.decks.forEach(function (d) { out = out.concat(app.order[d.id] || []); });
+    return out;
+  }
+  function newLeft() {
+    var used = app.meta.newDay === S.today() ? app.meta.newCount : 0;
+    return Math.max(0, app.meta.settings.newPerDay - used);
+  }
+  function stats(deckId) {
+    var t = S.today(), ids = idsOf(deckId), s = { total: ids.length, due: 0, phases: [0, 0, 0, 0, 0, 0, 0], next: null, nextN: 0 };
+    ids.forEach(function (id) {
+      var c = app.cards[id], p = Math.max(0, Math.min(6, c.p || 0));
+      s.phases[p]++;
+      if (S.isDue(c, t)) s.due++;
+      else if (p >= 1 && p < 6) {
+        if (s.next === null || c.due < s.next) { s.next = c.due; s.nextN = 1; } else if (c.due === s.next) s.nextN++;
+      }
+    });
+    s.fresh = s.phases[0];
+    s.freshToday = Math.min(s.fresh, newLeft());
+    s.todo = s.due + s.freshToday;
+    return s;
+  }
+  function whenText(day) {
+    var d = day - S.today();
+    return d <= 0 ? 'heute' : d === 1 ? 'morgen' : 'in ' + d + ' Tagen';
+  }
+
+  /* ---------- Meldungen und Rückfragen ---------- */
+  var toastTimer = null;
+  function toast(msg, ms) {
+    var t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('show'); }, ms || 2600);
+  }
+  function ask(title, text, okLabel, danger) {
+    return new Promise(function (resolve) {
+      var box = $('dialog');
+      function close(v) { box.hidden = true; box.textContent = ''; resolve(v); }
+      box.textContent = '';
+      box.appendChild(h('div', { class: 'dialog-box', role: 'alertdialog', 'aria-modal': 'true', 'aria-labelledby': 'dlg-t' },
+        h('h2', { id: 'dlg-t' }, title), text ? h('p', { class: 'muted' }, text) : null,
+        h('div', { class: 'actions' },
+          h('button', { class: 'btn wide', id: 'dlg-no', onclick: function () { close(false); } }, 'Abbrechen'),
+          h('button', { class: 'btn wide ' + (danger ? 'danger' : 'primary'), id: 'dlg-yes', onclick: function () { close(true); } }, okLabel))));
+      box.hidden = false;
+      $('dlg-no').focus();
+    });
+  }
+
+  /* ---------- Navigation ---------- */
+  var ROUTES = { heute: 1, import: 1, optionen: 1, deck: 1, lernen: 1 };
+  function go(route) {
+    if (route !== app.route) { app.rename = false; app.edit = null; }
+    app.route = route;
+    if (g.location.hash.slice(1) !== route) g.location.hash = route;   // löst hashchange aus, onHash rendert dann nicht doppelt
+    render();
+  }
+  function onHash(e) {
+    var r = g.location.hash.slice(1);
+    if (!ROUTES[r]) r = 'heute';
+    if (r === 'deck' && !deckById(app.deckId)) r = 'heute';
+    if (r === 'lernen' && !app.sess) r = 'heute';
+    if (e && r === app.route) return;
+    if (r !== app.route) { app.rename = false; app.edit = null; }
+    app.route = r;
+    render();
+  }
+  function render() {
+    var v = $('view'), fn = { heute: viewHome, import: viewImport, optionen: viewOptions, deck: viewDeck, lernen: viewSession }[app.route];
+    v.textContent = '';
+    v.appendChild(fn());
+    var focus = app.route === 'lernen';
+    $('tabbar').hidden = focus;
+    $('app').classList.toggle('focus', focus);
+    ['heute', 'import', 'optionen'].forEach(function (r) {
+      var a = $('tab-' + r), on = app.route === r || (r === 'heute' && app.route === 'deck');
+      if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+    if (app.last !== app.route) { g.scrollTo(0, 0); app.last = app.route; }
+  }
+
+  /* ---------- Karteikasten ---------- */
+  function phaseBox(ph) {
+    var max = Math.max.apply(null, ph.concat([1]));
+    var labels = ['Neu', '1', '2', '3', '4', '5', '6'], caps = ['', '1 Tag', '3 Tage', '9 Tage', '29 Tage', '90 Tage', ''];
+    var box = h('div', { class: 'phases', role: 'img', 'aria-label': 'Karten je Phase: ' + ph.map(function (n, i) { return (i ? 'Phase ' + i : 'neu') + ' ' + n; }).join(', ') });
+    ph.forEach(function (n, i) {
+      box.appendChild(h('div', { class: 'ph' + (i === 0 ? ' new' : i === 6 ? ' done' : '') },
+        h('span', { class: 'n' }, n),
+        h('span', { class: 'bar' }, h('i', { style: 'height:' + (n ? Math.max(8, Math.round(n / max * 100)) : 0) + '%' })),
+        h('span', { class: 'lab' }, labels[i]),
+        h('span', { class: 'cap' }, caps[i])));
+    });
+    return box;
+  }
+  function phasePill(c, practice) {
+    if (practice) return h('span', { class: 'pill' }, 'Üben');
+    var p = c.p || 0;
+    if (!p) return h('span', { class: 'pill acc' }, 'Neu');
+    if (p >= 6) return h('span', { class: 'pill okp' }, 'Langzeit');
+    return h('span', { class: 'pill' }, 'Phase ' + p);
+  }
+
+  /* ---------- Heute ---------- */
+  function viewHome() {
+    var s = stats(null), t = S.today(), m = app.meta, root = h('div', { class: 'stack' });
+    root.appendChild(h('header', { class: 'top' }, h('h1', { class: 'brand' }, 'Schedario'), h('span', { class: 'brand-sub' }, 'Italienisch lernen')));
+
+    var panel = h('section', { class: 'panel', 'aria-label': 'Heute' });
+    if (!s.total) {
+      add(panel, [h('p', { class: 'eyebrow' }, 'Heute'), h('p', null, 'Noch keine Karten. Importiere eine Datei aus deinem Unterricht, Claude macht daraus Lernkarten.'),
+        h('button', { class: 'btn primary big', onclick: function () { go('import'); } }, 'Datei importieren')]);
+    } else if (s.todo > 0) {
+      add(panel, [h('p', { class: 'eyebrow' }, 'Heute'),
+        h('p', { class: 'bignum' }, s.todo, h('span', null, s.todo === 1 ? 'Karte' : 'Karten')),
+        h('p', { class: 'muted' }, plural(s.due, 'Wiederholung', 'Wiederholungen') + ' · ' + plural(s.freshToday, 'neue Karte', 'neue Karten')),
+        h('button', { class: 'btn primary big', id: 'start', onclick: function () { startSession(null, false); } }, 'Lernen')]);
+    } else {
+      add(panel, [h('p', { class: 'eyebrow' }, 'Heute'), h('p', { class: 'front' }, 'Für heute erledigt.'),
+        h('p', { class: 'muted' }, s.next !== null ? 'Nächste Wiederholung ' + whenText(s.next) + ': ' + plural(s.nextN, 'Karte', 'Karten') + '.' : 'Keine Wiederholung geplant.'),
+        s.fresh ? h('p', { class: 'muted' }, plural(s.fresh, 'neue Karte wartet', 'neue Karten warten') + ' noch. Das Tageslimit von ' + m.settings.newPerDay + ' ist erreicht.') : null,
+        h('div', { class: 'actions' },
+          s.fresh ? h('button', { class: 'btn wide', id: 'more-new', onclick: function () { if (m.newDay !== t) { m.newDay = t; m.newCount = 0; } m.newCount = Math.min(m.newCount, m.settings.newPerDay) - 10; saveMeta(); startSession(null, false); } }, '10 neue dazu') : null,
+          h('button', { class: 'btn wide', id: 'practice', onclick: function () { startSession(null, true); } }, 'Frei üben'))]);
+    }
+    var done = m.doneDay === t ? m.doneCount : 0;
+    if (done || m.streak > 1) add(panel, h('p', { class: 'muted small' }, 'Heute beantwortet: ' + done + (m.streak > 1 && m.lastStudy >= t - 1 ? ' · ' + m.streak + ' Tage in Folge' : '')));
+    root.appendChild(panel);
+
+    if (s.total) {
+      root.appendChild(h('section', { class: 'panel', 'aria-label': 'Karteikasten' },
+        h('p', { class: 'eyebrow' }, 'Karteikasten'), phaseBox(s.phases),
+        h('p', { class: 'muted small' }, 'Unter jedem Fach steht die Wartezeit bis zur nächsten Abfrage. Richtig beantwortet rückt eine Karte ein Fach weiter, bei einem Fehler geht sie zurück in Phase 1.')));
+    }
+    if (isIos() && !isStandalone() && !m.settings.hintOff) {
+      root.appendChild(h('div', { class: 'note' }, h('span', null, h('strong', null, 'Als App installieren: '), 'In Safari auf Teilen tippen, dann „Zum Home-Bildschirm“.'),
+        h('button', { class: 'link', style: 'align-self:flex-start', onclick: function () { m.settings.hintOff = true; saveMeta(); render(); } }, 'Ausblenden')));
+    }
+
+    root.appendChild(h('h2', { class: 'section-h' }, 'Decks'));
+    if (m.decks.length) {
+      var list = h('div', { class: 'list' });
+      m.decks.forEach(function (d) {
+        var ds = stats(d.id);
+        list.appendChild(h('button', { class: 'row', onclick: function () { app.deckId = d.id; go('deck'); } },
+          h('span', { class: 'row-main' }, h('strong', null, d.name), h('span', { class: 'muted small' }, plural(ds.total, 'Karte', 'Karten') + (d.src ? ' · ' + d.src : ''))),
+          h('span', { class: 'row-side' }, ds.due ? h('span', { class: 'pill acc' }, ds.due + ' fällig') : null, ds.fresh ? h('span', { class: 'pill' }, ds.fresh + ' neu') : null,
+            h('span', { class: 'chev icon-btn', style: 'width:22px;height:22px' }, svg(ICON.chev)))));
+      });
+      root.appendChild(list);
+    }
+    root.appendChild(h('button', { class: 'btn', onclick: function () { go('import'); } }, 'Datei importieren'));
+    return root;
+  }
+  function isIos() { return /iPhone|iPad|iPod/.test(g.navigator.userAgent || ''); }
+  function isStandalone() { return g.navigator.standalone === true || (g.matchMedia && g.matchMedia('(display-mode: standalone)').matches); }
+
+  /* ---------- Lernrunde ---------- */
+  function startSession(deckId, practice) {
+    var t = S.today(), ids = idsOf(deckId), queue;
+    if (practice) queue = shuffle(ids.slice()).slice(0, 30);
+    else {
+      var due = shuffle(ids.filter(function (id) { return S.isDue(app.cards[id], t); }));
+      var pool = ids;
+      if (!deckId) {
+        pool = [];
+        app.meta.decks.slice().sort(function (a, b) { return (b.created || 0) - (a.created || 0); }).forEach(function (d) { pool = pool.concat(app.order[d.id] || []); });
+      }
+      var fresh = pool.filter(function (id) { return S.isNew(app.cards[id]); }).slice(0, newLeft());
+      var rev = function (id) { var c = app.cards[id]; return c.kind === 'prod' || c.kind === 'plural' || (c.kind === 'voc' && !c.frontIt); };
+      queue = due.concat(fresh.filter(function (id) { return !rev(id); }), fresh.filter(rev));
+    }
+    if (!queue.length) { toast('Dafür gibt es gerade keine Karten.'); return; }
+    app.sess = { deckId: deckId, practice: practice, queue: queue, pos: 0, seen: {}, ok: 0, ko: 0, finished: 0, total: queue.length, cur: null, done: false };
+    go('lernen');
+  }
+  function endSession() { app.sess = null; go('heute'); }
+
+  function verdictText(c, correct, s) {
+    if (s.practice) return correct ? 'Übungsrunde, ohne Einfluss auf die Phasen.' : 'Kommt in dieser Runde noch einmal.';
+    var first = !s.seen[c.id], p = c.p || 0;
+    if (!correct) return (p && first ? 'Zurück in Phase 1. ' : '') + 'Kommt in dieser Runde noch einmal.';
+    if (!p) return 'Ab morgen in Phase 1.';
+    if (!first) return 'Bleibt in Phase 1, morgen wieder.';
+    if (p + 1 >= S.LONGTERM) return 'Geschafft: im Langzeitgedächtnis.';
+    return 'Weiter in Phase ' + (p + 1) + ', wieder in ' + plural(S.WAITS[p + 1], 'Tag', 'Tagen') + '.';
+  }
+  function solution(c) {
+    return h('div', { class: 'solution' }, h('p', { class: 'soltext', html: md(c.back) }),
+      c.why ? h('p', { class: 'info' }, c.why) : null, c.info ? h('p', { class: 'info' }, c.info) : null, c.src ? h('p', { class: 'src' }, c.src) : null);
+  }
+
+  function viewSession() {
+    var s = app.sess;
+    if (!s) return viewHome();
+    while (!s.done && !app.cards[s.queue[s.pos]]) { s.pos++; if (s.pos >= s.queue.length) s.done = true; }
+    if (s.done) return viewSummary();
+    var c = app.cards[s.queue[s.pos]];
+    if (!s.cur || s.cur.id !== c.id || s.cur.pos !== s.pos) {
+      s.cur = { id: c.id, pos: s.pos, values: c.fields.map(function () { return ''; }), checked: false, results: null, correct: null, revealed: false };
+    }
+    var cur = s.cur, root = h('div', { class: 'stack' });
+    root.appendChild(h('div', { class: 'sess-top' },
+      h('button', { class: 'icon-btn', id: 'sess-end', 'aria-label': 'Runde beenden', onclick: endSession }, svg(ICON.x)),
+      h('div', { class: 'prog', role: 'progressbar', 'aria-label': 'Fortschritt', 'aria-valuemin': '0', 'aria-valuemax': String(s.total), 'aria-valuenow': String(s.finished) },
+        h('i', { style: 'width:' + Math.round(s.finished / s.total * 100) + '%' })),
+      h('span', { class: 'prog-n' }, s.finished + ' / ' + s.total)));
+
+    var len = plain(c.front).length;
+    var card = h('article', { class: 'card', id: 'card' },
+      h('div', { class: 'card-head' }, h('span', { class: 'eyebrow' }, c.eyebrow), phasePill(c, s.practice)),
+      h('div', { class: 'front' + (c.frontIt ? ' it' : '') + (len > 60 ? ' long' : len > 20 ? ' mid' : ''), id: 'front', lang: c.frontIt ? 'it' : null, html: md(c.front) }),
+      c.sub ? h('p', { class: 'sub' }, c.sub) : null);
+
+    if (c.fields.length) {
+      var form = h('form', { class: 'fields' + (c.kind === 'conj' ? ' conj' : ''), id: 'answer', novalidate: true, onsubmit: function (e) { e.preventDefault(); if (cur.checked) commit(cur.correct); else check(); } });
+      var needAcc = false;
+      c.fields.forEach(function (f, i) {
+        var res = cur.results && cur.results[i], fid = 'f' + i;
+        var box = h('div', { class: 'field' + (res ? (res.ok ? ' ok' : ' bad') : '') });
+        if (f.opts) {
+          box.appendChild(h('div', { class: 'flabel' }, h('span', { class: 'lbl', id: fid + '-l' }, f.l), f.s ? h('span', { class: 'fsub', lang: 'it' }, f.s) : null));
+          var seg = h('div', { class: 'seg', role: 'radiogroup', 'aria-labelledby': fid + '-l' });
+          f.opts.forEach(function (o, j) {
+            var sel = cur.values[i] === o, right = res && S.norm(o) === S.norm(f.a);
+            seg.appendChild(h('button', { type: 'button', role: 'radio', id: fid + '-' + j, lang: 'it', 'aria-checked': sel ? 'true' : 'false', disabled: cur.checked,
+              class: 'seg-b' + (sel ? ' sel' : '') + (right ? ' right' : '') + (res && sel && !res.ok ? ' wrong' : ''),
+              onclick: function () {
+                cur.values[i] = o;
+                Array.prototype.forEach.call(seg.children, function (b, bj) { b.classList.toggle('sel', bj === j); b.setAttribute('aria-checked', bj === j ? 'true' : 'false'); });
+              } }, o));
+          });
+          box.appendChild(seg);
+        } else {
+          if (f.it) needAcc = true;
+          box.appendChild(h('div', { class: 'flabel' }, h('label', { for: fid }, f.l), f.s && c.kind !== 'conj' ? h('span', { class: 'fsub', lang: 'it' }, f.s) : null));
+          box.appendChild(h('input', { id: fid, class: 'inp', type: 'text', value: cur.values[i], lang: f.it ? 'it' : null, readonly: cur.checked,
+            autocapitalize: 'off', autocorrect: 'off', autocomplete: 'off', spellcheck: 'false', enterkeyhint: 'next',
+            oninput: function (e) { cur.values[i] = e.target.value; },
+            onfocus: function (e) { app.lastInput = e.target; },
+            onkeydown: function (e) {
+              if (e.key !== 'Enter' || cur.checked) return;
+              var empty = Array.prototype.filter.call(form.querySelectorAll('input.inp'), function (x) { return !x.value.trim() && x !== e.target; });
+              if (empty.length && e.target.value.trim()) { e.preventDefault(); empty[0].focus(); }
+            } }));
+          if (res && !res.ok) box.appendChild(h('p', { class: 'fix' }, 'Richtig: ', h('strong', { lang: f.it ? 'it' : null }, res.expected)));
+          else if (res && res.accent) box.appendChild(h('p', { class: 'fix warn' }, 'Akzent beachten: ', h('strong', { lang: 'it' }, res.expected)));
+        }
+        form.appendChild(box);
+      });
+      if (needAcc && !cur.checked) {
+        form.appendChild(h('div', { class: 'accents', role: 'group', 'aria-label': 'Akzentbuchstaben einfügen' }, ['à', 'è', 'é', 'ì', 'ò', 'ù'].map(function (ch) {
+          return h('button', { type: 'button', class: 'acckey', tabindex: '-1', 'aria-label': ch + ' einfügen',
+            onpointerdown: function (e) { e.preventDefault(); }, onmousedown: function (e) { e.preventDefault(); },
+            onclick: function () { insertChar(ch, form); } }, ch);
+        })));
+      }
+      if (!cur.checked) {
+        form.appendChild(h('button', { class: 'btn primary big', type: 'submit', id: 'check' }, 'Prüfen'));
+        form.appendChild(h('button', { class: 'btn ghost', type: 'button', id: 'giveup', onclick: check }, 'Weiß ich nicht, Lösung zeigen'));
+      }
+      card.appendChild(form);
+      if (cur.checked) {
+        var learning = !cur.correct && !s.practice && S.isNew(c);
+        card.appendChild(h('div', { class: 'verdict ' + (cur.correct ? 'ok' : learning ? 'learn' : 'bad'), id: 'verdict', role: 'status' },
+          cur.correct ? 'Richtig' : learning ? 'Zum Einprägen' : 'Noch nicht', h('small', null, verdictText(c, cur.correct, s))));
+        card.appendChild(solution(c));
+        card.appendChild(h('div', { class: 'actions col' },
+          h('button', { class: 'btn primary big', id: 'next', onclick: function () { commit(cur.correct); } }, 'Weiter'),
+          !cur.correct ? h('button', { class: 'btn ghost', id: 'override', onclick: function () { cur.correct = true; cur.results = cur.results.map(function (r) { return { ok: true, accent: false, expected: r.expected }; }); render(); focusNext(); } }, 'War doch richtig') : null));
+      }
+    } else if (!cur.revealed) {
+      card.appendChild(h('div', { class: 'rule' }));
+      card.appendChild(h('p', { class: 'muted' }, 'Antwort im Kopf formulieren, dann aufdecken.'));
+      card.appendChild(h('button', { class: 'btn primary big', id: 'reveal', onclick: function () { cur.revealed = true; render(); } }, 'Antwort zeigen'));
+    } else {
+      card.appendChild(solution(c));
+      card.appendChild(h('div', { class: 'actions' },
+        h('button', { class: 'btn badb wide', id: 'no', onclick: function () { commit(false); } }, 'Nicht gewusst'),
+        h('button', { class: 'btn okb wide', id: 'yes', onclick: function () { commit(true); } }, 'Gewusst')));
+    }
+    root.appendChild(card);
+    return root;
+  }
+  function insertChar(ch, form) {
+    var inp = app.lastInput && form.contains(app.lastInput) ? app.lastInput : form.querySelector('input.inp[lang="it"]');
+    if (!inp || inp.readOnly) return;
+    var a = inp.selectionStart == null ? inp.value.length : inp.selectionStart, b = inp.selectionEnd == null ? a : inp.selectionEnd;
+    inp.value = inp.value.slice(0, a) + ch + inp.value.slice(b);
+    inp.focus();
+    try { inp.setSelectionRange(a + 1, a + 1); } catch (e) { /* egal */ }
+    inp.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  function focusNext() { var b = $('next'); if (b) b.focus({ preventScroll: true }); }
+  function check() {
+    var s = app.sess, cur = s.cur, c = app.cards[cur.id];
+    cur.results = c.fields.map(function (f, i) { return S.checkField(f, cur.values[i], app.meta.settings.strict); });
+    cur.correct = cur.results.every(function (r) { return r.ok; });
+    cur.checked = true;
+    if (doc.activeElement && doc.activeElement.blur) doc.activeElement.blur();
+    render();
+    var v = $('verdict');
+    if (v && v.scrollIntoView) v.scrollIntoView({ block: 'nearest' });
+    focusNext();
+  }
+  function commit(correct) {
+    var s = app.sess, c = app.cards[s.cur.id], t = S.today(), m = app.meta;
+    var first = !s.seen[c.id];
+    s.seen[c.id] = 1;
+    if (first) { if (correct) s.ok++; else s.ko++; }
+    if (!s.practice) {
+      var changed = false;
+      if (S.isNew(c)) {
+        if (correct) {
+          Object.assign(c, S.grade(c, true, t));
+          if (m.newDay !== t) { m.newDay = t; m.newCount = 0; }
+          m.newCount++; changed = true;
+        }
+      } else if (first) { Object.assign(c, S.grade(c, correct, t)); changed = true; }
+      if (first) {
+        if (m.doneDay !== t) { m.doneDay = t; m.doneCount = 0; }
+        m.doneCount++;
+        if (m.lastStudy !== t) { m.streak = m.lastStudy === t - 1 ? (m.streak || 0) + 1 : 1; m.lastStudy = t; }
+      }
+      if (changed) saveDeck(c.deck);
+      saveMeta();
+    }
+    if (correct) s.finished++;
+    else s.queue.splice(Math.min(s.queue.length, s.pos + 4), 0, c.id);
+    s.pos++; s.cur = null;
+    if (s.pos >= s.queue.length) s.done = true;
+    render();
+    g.scrollTo(0, 0);
+    var inp = doc.querySelector('#answer input.inp');
+    if (inp && !doc.querySelector('#answer .seg')) inp.focus();
+  }
+  function viewSummary() {
+    var s = app.sess, st = stats(s.deckId), left = !s.practice && st.todo > 0;
+    return h('div', { class: 'stack summary' },
+      h('p', { class: 'eyebrow' }, s.practice ? 'Übungsrunde beendet' : 'Runde beendet'),
+      h('h1', { class: 'display', lang: 'it' }, 'Fatto!'),
+      h('p', null, s.ok + ' von ' + s.total + ' auf Anhieb richtig' + (s.ko ? ', ' + s.ko + ' noch einmal geübt.' : '.')),
+      s.practice ? null : h('section', { class: 'panel' }, h('p', { class: 'eyebrow' }, 'Karteikasten'), phaseBox(st.phases),
+        h('p', { class: 'muted small' }, st.next !== null ? 'Nächste Wiederholung ' + whenText(st.next) + ': ' + plural(st.nextN, 'Karte', 'Karten') + '.' : '')),
+      left ? h('button', { class: 'btn', id: 'again', onclick: function () { var d = s.deckId; app.sess = null; startSession(d, false); render(); } }, 'Weiterlernen (' + st.todo + ')') : null,
+      h('button', { class: 'btn primary big', id: 'done', onclick: endSession }, 'Fertig'));
+  }
+
+  /* ---------- Deck ---------- */
+  function viewDeck() {
+    var d = deckById(app.deckId);
+    if (!d) return viewHome();
+    var st = stats(d.id), ids = app.order[d.id], root = h('div', { class: 'stack' });
+    root.appendChild(h('div', null, h('button', { class: 'backlink', onclick: function () { go('heute'); } }, svg(ICON.back), 'Heute')));
+    if (app.rename) {
+      root.appendChild(h('form', { class: 'rowflex', onsubmit: function (e) { e.preventDefault(); var v = $('deck-name').value.trim(); if (v) { d.name = v; saveMeta(); } app.rename = false; render(); } },
+        h('label', { class: 'vh', for: 'deck-name' }, 'Name des Decks'),
+        h('input', { class: 'inp grow', id: 'deck-name', value: d.name, style: 'width:auto' }), h('button', { class: 'btn primary', type: 'submit' }, 'Speichern')));
+    } else {
+      root.appendChild(h('div', { class: 'stack-s' }, h('h1', { class: 'page-title' }, d.name),
+        h('p', { class: 'muted small' }, plural(st.total, 'Karte', 'Karten') + (d.src ? ' · ' + d.src : '')),
+        h('button', { class: 'link', style: 'align-self:flex-start', onclick: function () { app.rename = true; render(); var i = $('deck-name'); if (i) i.focus(); } }, 'Umbenennen')));
+    }
+    root.appendChild(h('section', { class: 'panel' }, phaseBox(st.phases),
+      h('div', { class: 'actions' },
+        h('button', { class: 'btn primary wide', id: 'deck-start', disabled: !st.todo, onclick: function () { startSession(d.id, false); } }, st.todo ? 'Lernen (' + st.todo + ')' : 'Nichts fällig'),
+        h('button', { class: 'btn wide', id: 'deck-practice', disabled: !st.total, onclick: function () { startSession(d.id, true); } }, 'Frei üben'))));
+
+    var groups = [], idx = {};
+    ids.forEach(function (id) {
+      var c = app.cards[id], k = c.eyebrow || 'Karten';
+      if (idx[k] === undefined) { idx[k] = groups.length; groups.push({ name: k, ids: [] }); }
+      groups[idx[k]].ids.push(id);
+    });
+    root.appendChild(h('h2', { class: 'section-h' }, 'Karten nach Thema'));
+    var list = h('div', { class: 'list' });
+    groups.forEach(function (gr) {
+      var gk = d.id + '|' + gr.name, det = h('details', { class: 'grp', open: app.grp[gk] ? true : null, ontoggle: function (e) { app.grp[gk] = e.target.open; } },
+        h('summary', null, h('span', { class: 'grow' }, gr.name), h('span', { class: 'pill' }, gr.ids.length)));
+      var ul = h('ul');
+      gr.ids.forEach(function (id) { ul.appendChild(cardRow(app.cards[id])); });
+      det.appendChild(ul);
+      list.appendChild(det);
+    });
+    root.appendChild(list);
+    root.appendChild(h('button', { class: 'btn ghost', id: 'deck-reset', onclick: function () {
+      ask('Lernstand zurücksetzen?', 'Alle Karten in „' + d.name + '“ gelten wieder als neu.', 'Zurücksetzen', true).then(function (yes) {
+        if (!yes) return;
+        ids.forEach(function (id) { var c = app.cards[id]; c.p = 0; c.due = 0; c.ok = 0; c.ko = 0; });
+        saveDeck(d.id); render(); toast('Lernstand zurückgesetzt.');
+      });
+    } }, 'Lernstand zurücksetzen'));
+    root.appendChild(h('button', { class: 'btn danger', id: 'deck-del', onclick: function () {
+      ask('Deck löschen?', '„' + d.name + '“ mit ' + plural(st.total, 'Karte', 'Karten') + ' und dem Lernstand wird entfernt.', 'Löschen', true).then(function (yes) {
+        if (!yes) return; removeDeck(d.id); app.deckId = null; go('heute'); toast('Deck gelöscht.');
+      });
+    } }, 'Deck löschen'));
+    return root;
+  }
+  function cardRow(c) {
+    var open = !!app.open[c.id], li = h('li', { class: 'crow' });
+    li.appendChild(h('button', { class: 'crow-b', 'aria-expanded': open ? 'true' : 'false', onclick: function () { app.open[c.id] = !open; if (open && app.edit === c.id) app.edit = null; render(); } },
+      h('span', { class: 'crow-t' + (c.frontIt ? ' it' : ''), lang: c.frontIt ? 'it' : null }, plain(c.front)), phasePill(c)));
+    if (!open) return li;
+    var d = h('div', { class: 'crow-d' });
+    if (app.edit === c.id) d.appendChild(editForm(c));
+    else {
+      d.appendChild(solution(c));
+      if (c.fields.length) d.appendChild(h('p', { class: 'kv' }, c.fields.map(function (f) { return f.l + ': ' + [f.a].concat(f.alt || []).join(' / '); }).join(' · ')));
+      if (c.p) d.appendChild(h('p', { class: 'kv' }, (c.p >= 6 ? 'Im Langzeitgedächtnis' : 'Phase ' + c.p + ', nächste Abfrage ' + whenText(c.due)) + ' · ' + (c.ok || 0) + '× richtig, ' + (c.ko || 0) + '× falsch'));
+      d.appendChild(h('div', { class: 'actions' },
+        h('button', { class: 'btn wide', onclick: function () { app.edit = c.id; render(); } }, 'Bearbeiten'),
+        h('button', { class: 'btn danger wide', onclick: function () {
+          ask('Karte löschen?', plain(c.front), 'Löschen', true).then(function (yes) {
+            if (!yes) return;
+            app.order[c.deck] = app.order[c.deck].filter(function (x) { return x !== c.id; });
+            delete app.cards[c.id]; saveDeck(c.deck); render();
+          });
+        } }, 'Löschen')));
+    }
+    li.appendChild(d);
+    return li;
+  }
+  function editForm(c) {
+    var form = h('form', { class: 'stack-s', onsubmit: function (e) {
+      e.preventDefault();
+      c.front = $('e-front').value.trim() || c.front;
+      c.back = $('e-back').value.trim() || c.back;
+      c.info = $('e-info').value.trim();
+      c.fields.forEach(function (f, i) {
+        var parts = $('e-f' + i).value.split('/').map(function (x) { return x.trim(); }).filter(Boolean);
+        if (!parts.length) return;
+        if (f.opts) { if (f.opts.indexOf(parts[0]) >= 0) f.a = parts[0]; }
+        else { f.a = parts[0]; f.alt = parts.slice(1); }
+      });
+      app.edit = null; saveDeck(c.deck); render(); toast('Karte gespeichert.');
+    } });
+    function fld(id, label, value, area) {
+      return h('div', { class: 'field' }, h('div', { class: 'flabel' }, h('label', { for: id }, label)),
+        area ? h('textarea', { class: 'ta', id: id }, value) : h('input', { class: 'inp', id: id, value: value, autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false' }));
+    }
+    add(form, [fld('e-front', 'Vorderseite', c.front, c.front.length > 40), fld('e-back', 'Rückseite (**fett**, *kursiv*)', c.back, true), fld('e-info', 'Hinweis', c.info || '')]);
+    c.fields.forEach(function (f, i) {
+      form.appendChild(fld('e-f' + i, f.l + (f.opts ? ' (' + f.opts.join(', ') + ')' : ': richtige Antworten, mit / getrennt'), [f.a].concat(f.alt || []).join(' / ')));
+    });
+    form.appendChild(h('div', { class: 'actions' },
+      h('button', { class: 'btn wide', type: 'button', onclick: function () { app.edit = null; render(); } }, 'Abbrechen'),
+      h('button', { class: 'btn primary wide', type: 'submit' }, 'Speichern')));
+    return form;
+  }
+
+  /* ---------- Import ---------- */
+  var KINDS = [['nomen', 'Nomen & Artikel'], ['verb', 'Verben & Konjugation'], ['vokabel', 'Wortschatz'], ['regel', 'Regeln'], ['luecke', 'Lückensätze']];
+  function newImp() {
+    return { step: 'pick', materials: [], errors: [], busy: false, showText: false, name: '', target: 'new',
+      kinds: { nomen: true, verb: true, vokabel: true, regel: true, luecke: true }, amount: 'normal', images: true,
+      prog: null, cards: [], off: {}, error: null, ctl: null, usage: null, truncated: false, bad: 0 };
+  }
+  function baseName(n) { return String(n || '').replace(/\.[a-z0-9]+$/i, '').replace(/[_]+/g, ' ').trim() || 'Neues Deck'; }
+  function matSummary(m) {
+    var st = m.stats || {}, parts = [];
+    if (m.type === 'pdf') parts.push('PDF, ' + (m.pdf.size / 1048576).toFixed(1).replace('.', ',') + ' MB, wird als Ganzes an Claude geschickt');
+    else if (m.type === 'image') parts.push('Foto');
+    else {
+      if (st.slides) parts.push(plural(st.slides, 'Folie', 'Folien'));
+      if (st.pages) parts.push(plural(st.pages, 'Seite', 'Seiten'));
+      if (st.tables) parts.push(plural(st.tables, 'Tabelle', 'Tabellen'));
+      parts.push(num(S.materialChars(m)) + ' Zeichen Text');
+      if (st.images) parts.push(plural(st.images, 'Bild', 'Bilder'));
+    }
+    return parts.join(' · ');
+  }
+  function onFiles(files) {
+    var imp = app.imp, list = Array.prototype.slice.call(files || []);
+    if (!list.length) return;
+    imp.busy = true; imp.errors = []; render();
+    Promise.all(list.map(function (f) {
+      return Promise.resolve().then(function () { return S.readFile(f, true); })
+        .then(function (m) { return { m: m }; }, function (e) { return { err: (e && e.message) || String(e), name: f.name }; });
+    })).then(function (res) {
+      res.forEach(function (r) {
+        if (r.err) { imp.errors.push(r.name + ': ' + r.err); return; }
+        if (!r.m.pdf && !S.materialChars(r.m) && !r.m.blocks.some(function (b) { return b.images && b.images.length; })) { imp.errors.push(r.m.name + ': In der Datei wurde kein Text gefunden.'); return; }
+        imp.materials.push(r.m);
+      });
+      if (!imp.name && imp.materials.length) imp.name = baseName(imp.materials[0].name);
+      imp.busy = false; render();
+    });
+  }
+  function viewImport() {
+    if (!app.imp) app.imp = newImp();
+    var imp = app.imp;
+    if (imp.step === 'running') return viewRunning();
+    if (imp.step === 'review') return viewReview();
+    var root = h('div', { class: 'stack' });
+    root.appendChild(h('header', { class: 'top' }, h('h1', { class: 'page-title' }, 'Import')));
+    if (!app.key) {
+      root.appendChild(h('div', { class: 'note warn' }, h('span', null, h('strong', null, 'API-Key fehlt. '), 'Zum Erzeugen der Karten ruft die App Claude mit deinem eigenen Key auf.'),
+        h('button', { class: 'btn', style: 'align-self:flex-start', onclick: function () { go('optionen'); } }, 'Key eintragen')));
+    }
+    root.appendChild(h('label', { class: 'drop', for: 'file' },
+      h('strong', null, imp.materials.length ? 'Weitere Datei hinzufügen' : 'Datei wählen'),
+      h('span', { class: 'muted small' }, 'PDF, Word (.docx), PowerPoint (.pptx) oder Foto'),
+      h('input', { class: 'vh', type: 'file', id: 'file', multiple: true, accept: '.pdf,.docx,.pptx,.txt,.md,image/*,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        onchange: function (e) { onFiles(e.target.files); e.target.value = ''; } })));
+    if (imp.busy) root.appendChild(h('div', { class: 'rowflex' }, h('span', { class: 'spinner' }), h('span', null, 'Datei wird gelesen …')));
+    imp.errors.forEach(function (e) { root.appendChild(h('div', { class: 'note bad', role: 'alert' }, e)); });
+    if (imp.error) {
+      root.appendChild(h('div', { class: 'note bad', role: 'alert' }, h('strong', null, imp.error.message || 'Fehler'), imp.error.detail ? h('span', { class: 'detail' }, imp.error.detail) : null));
+    }
+
+    if (!imp.showText) root.appendChild(h('button', { class: 'link', style: 'align-self:flex-start', onclick: function () { imp.showText = true; render(); var t = $('paste'); if (t) t.focus(); } }, 'Stattdessen Text einfügen'));
+    else {
+      root.appendChild(h('div', { class: 'stack-s' }, h('label', { for: 'paste', class: 'small', style: 'font-weight:650' }, 'Text aus dem Unterricht'),
+        h('textarea', { class: 'ta', id: 'paste', placeholder: 'Wortliste, Regeln oder Beispielsätze hier einfügen', oninput: function (e) { imp.text = e.target.value; } }, imp.text || ''),
+        h('button', { class: 'btn', style: 'align-self:flex-start', onclick: function () {
+          var t = $('paste').value.trim(); if (!t) return;
+          imp.materials.push({ name: 'Eingefügter Text', type: 'text', stats: {}, blocks: [{ text: t, images: [] }] });
+          if (!imp.name) imp.name = 'Eingefügter Text';
+          imp.showText = false; imp.text = ''; render();
+        } }, 'Übernehmen')));
+    }
+
+    if (imp.materials.length) {
+      var list = h('div', { class: 'list' });
+      imp.materials.forEach(function (m, i) {
+        list.appendChild(h('div', { class: 'row', style: 'cursor:default' },
+          h('span', { class: 'row-main' }, h('strong', null, m.name), h('span', { class: 'muted small' }, matSummary(m))),
+          h('button', { class: 'icon-btn', 'aria-label': m.name + ' entfernen', onclick: function () { imp.materials.splice(i, 1); render(); } }, svg(ICON.x))));
+      });
+      root.appendChild(list);
+      var text = imp.materials.map(function (m) { return m.blocks.map(function (b) { return b.text; }).join('\n\n'); }).join('\n\n').trim();
+      if (text) root.appendChild(h('details', null, h('summary', { class: 'link', style: 'cursor:pointer' }, 'Erkannten Text ansehen'),
+        h('div', { class: 'pre', id: 'preview', tabindex: '0' }, text.length > 6000 ? text.slice(0, 6000) + '\n…' : text)));
+
+      var opts = h('section', { class: 'panel' });
+      var sel = h('select', { class: 'sel', id: 'target', onchange: function (e) { imp.target = e.target.value; render(); } },
+        h('option', { value: 'new' }, 'Neues Deck'), app.meta.decks.map(function (d) { return h('option', { value: d.id }, 'Zu „' + d.name + '“ hinzufügen'); }));
+      sel.value = imp.target;
+      opts.appendChild(h('div', { class: 'field' }, h('div', { class: 'flabel' }, h('label', { for: 'target' }, 'Ziel')), sel));
+      if (imp.target === 'new') opts.appendChild(h('div', { class: 'field' }, h('div', { class: 'flabel' }, h('label', { for: 'dname' }, 'Name des Decks')),
+        h('input', { class: 'inp', id: 'dname', value: imp.name, oninput: function (e) { imp.name = e.target.value; } })));
+      opts.appendChild(h('fieldset', { style: 'border:0;padding:0;margin:0', class: 'stack-s' }, h('legend', { class: 'small', style: 'font-weight:650;padding:0 0 8px' }, 'Was soll abgefragt werden?'),
+        h('div', { class: 'chips' }, KINDS.map(function (k) {
+          return h('label', { class: 'chip' }, h('input', { type: 'checkbox', id: 'k-' + k[0], checked: imp.kinds[k[0]], onchange: function (e) { imp.kinds[k[0]] = e.target.checked; } }), k[1]);
+        }))));
+      var amt = h('select', { class: 'sel', id: 'amount', onchange: function (e) { imp.amount = e.target.value; } },
+        h('option', { value: 'kompakt' }, 'Kompakt: nur das Wichtigste'), h('option', { value: 'normal' }, 'Normal'), h('option', { value: 'gruendlich' }, 'Gründlich: jede Regel und Ausnahme'));
+      amt.value = imp.amount;
+      opts.appendChild(h('div', { class: 'field' }, h('div', { class: 'flabel' }, h('label', { for: 'amount' }, 'Umfang bei Regeln und Lückensätzen')), amt));
+      if (imp.materials.some(function (m) { return (m.type === 'docx' || m.type === 'pptx') && m.stats.images; })) {
+        opts.appendChild(h('label', { class: 'opt' }, h('span', null, 'Bilder aus der Datei mitsenden'), h('input', { type: 'checkbox', class: 'switch', id: 'imgs', checked: imp.images, onchange: function (e) { imp.images = e.target.checked; } })));
+      }
+      root.appendChild(opts);
+      root.appendChild(h('button', { class: 'btn primary big', id: 'gen', disabled: !app.key, onclick: generate }, 'Karten erzeugen'));
+      root.appendChild(h('p', { class: 'muted small center' }, 'Modell: ' + modelName(app.meta.settings.model) + '. Die Datei geht nur an die Claude-API.'));
+    }
+    return root;
+  }
+  function modelName(id) {
+    var all = (app.models || []).concat(S.MODELS);
+    for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i].name;
+    return id;
+  }
+  function generate() {
+    var imp = app.imp;
+    if (!KINDS.some(function (k) { return imp.kinds[k[0]]; })) { toast('Bitte mindestens eine Kartenart wählen.'); return; }
+    var mats = imp.materials.map(function (m) {
+      if (imp.images || m.type === 'image' || m.pdf) return m;
+      return Object.assign({}, m, { blocks: m.blocks.map(function (b) { return { text: b.text, images: [] }; }) });
+    });
+    var jobs = S.planJobs(mats);
+    imp.step = 'running'; imp.error = null; imp.ctl = new AbortController();
+    var lock = null;   // Bildschirm wach halten, damit iOS die Anfrage nicht unterbricht
+    try { if (g.navigator.wakeLock) g.navigator.wakeLock.request('screen').then(function (l) { lock = l; }, function () {}); } catch (e) { /* egal */ }
+    function unlock() { try { if (lock) lock.release(); } catch (e) { /* egal */ } lock = null; }
+    imp.prog = { job: 1, jobs: jobs.length, cards: [], waiting: true };
+    render();
+    S.runImport(jobs, {
+      key: app.key, model: app.meta.settings.model, lang: app.meta.settings.lang, kinds: imp.kinds, amount: imp.amount, signal: imp.ctl.signal,
+      onProgress: function (p) { imp.prog = p; paintProgress(); }
+    }).then(function (res) {
+      unlock();
+      imp.cards = res.cards; imp.usage = res.usage; imp.truncated = res.truncated; imp.bad = res.bad; imp.off = {};
+      if (!res.cards.length) { imp.step = 'pick'; imp.error = { message: 'Claude hat keine verwertbaren Karten geliefert.', detail: String((res.records.length ? '' : 'Die Antwort enthielt keine lesbaren Datensätze. ') + 'Versuch es noch einmal oder wähle ein anderes Modell.') }; }
+      else imp.step = 'review';
+      if (app.route === 'import') render(); else toast(res.cards.length + ' Karten sind fertig. Sieh sie dir im Import an.', 5000);
+    }, function (err) {
+      unlock();
+      var part = err && err.partial;
+      if (part && part.cards.length) { imp.cards = part.cards; imp.usage = part.usage; imp.bad = part.bad; imp.off = {}; imp.step = 'review'; imp.error = err.code === 'cancelled' ? { message: 'Gestoppt. Die bis dahin erzeugten Karten kannst du übernehmen.' } : err; }
+      else { imp.step = 'pick'; imp.error = err && err.code === 'cancelled' ? null : (err || { message: 'Unbekannter Fehler.' }); }
+      if (app.route === 'import') render();
+    });
+  }
+  function paintProgress() {
+    var p = app.imp && app.imp.prog, a = $('prog-a'), n = $('prog-n'), l = $('prog-l');
+    if (!p || !a) return;
+    a.textContent = (p.jobs > 1 ? 'Teil ' + p.job + ' von ' + p.jobs + ': ' : '') + (p.retry ? 'Die API ist ausgelastet, neuer Versuch in ' + p.retry + ' s …' : p.waiting ? 'Claude liest das Material …' : 'Claude schreibt die Karten …') + (p.round && !p.retry ? ' (Fortsetzung)' : '');
+    n.textContent = plural(p.cards.length, 'Karte', 'Karten');
+    l.textContent = '';
+    p.cards.slice(-6).forEach(function (c) { l.appendChild(h('li', null, plain(c.front))); });
+  }
+  function viewRunning() {
+    var imp = app.imp, root = h('div', { class: 'stack' });
+    root.appendChild(h('header', { class: 'top' }, h('h1', { class: 'page-title' }, 'Import')));
+    root.appendChild(h('section', { class: 'panel', 'aria-live': 'polite' },
+      h('div', { class: 'rowflex' }, h('span', { class: 'spinner' }), h('span', { id: 'prog-a', class: 'grow' }, '')),
+      h('p', { class: 'bignum', id: 'prog-n' }, ''),
+      h('ul', { class: 'live', id: 'prog-l' }),
+      h('button', { class: 'btn', id: 'stop', onclick: function () { if (imp.ctl) imp.ctl.abort(); } }, 'Stopp')));
+    root.appendChild(h('p', { class: 'muted small' }, 'Das dauert je nach Umfang zwischen 20 Sekunden und ein paar Minuten. Lass die App so lange geöffnet.'));
+    setTimeout(paintProgress, 0);
+    return root;
+  }
+  function viewReview() {
+    var imp = app.imp, root = h('div', { class: 'stack' }), kept = imp.cards.filter(function (c, i) { return !imp.off[i]; }).length;
+    root.appendChild(h('header', { class: 'top' }, h('h1', { class: 'page-title' }, 'Karten prüfen')));
+    root.appendChild(h('p', { class: 'muted' }, plural(imp.cards.length, 'Karte', 'Karten') + ' aus ' + imp.materials.map(function (m) { return m.name; }).join(', ') + '. Nimm heraus, was du nicht lernen willst.'));
+    if (imp.error) root.appendChild(h('div', { class: 'note warn', role: 'alert' }, h('strong', null, imp.error.message), imp.error.detail ? h('span', { class: 'detail' }, imp.error.detail) : null));
+    if (imp.truncated) root.appendChild(h('div', { class: 'note warn' }, 'Die Antwort war sehr lang und wurde abgeschnitten. Möglicherweise fehlen Karten vom Ende des Materials.'));
+    if (imp.bad) root.appendChild(h('div', { class: 'note warn' }, plural(imp.bad, 'Zeile', 'Zeilen') + ' der Antwort waren nicht lesbar und wurden übersprungen.'));
+    if (imp.usage && (imp.usage.input || imp.usage.output)) root.appendChild(h('p', { class: 'src' }, 'Verbrauch: ' + num(imp.usage.input) + ' Tokens gelesen, ' + num(imp.usage.output) + ' geschrieben'));
+
+    var groups = [], idx = {};
+    imp.cards.forEach(function (c, i) {
+      var k = c.eyebrow || 'Karten';
+      if (idx[k] === undefined) { idx[k] = groups.length; groups.push({ name: k, items: [] }); }
+      groups[idx[k]].items.push(i);
+    });
+    var saveBtn = h('button', { class: 'btn primary big', id: 'save-cards', disabled: !kept, onclick: saveImport }, kept + ' Karten speichern');
+    function recount() { kept = imp.cards.filter(function (c, i) { return !imp.off[i]; }).length; saveBtn.textContent = kept + ' Karten speichern'; saveBtn.disabled = !kept; }
+    var list = h('div', { class: 'list' });
+    groups.forEach(function (gr, gi) {
+      var det = h('details', { class: 'grp', open: gi === 0 ? true : null }, h('summary', null, h('span', { class: 'grow' }, gr.name), h('span', { class: 'pill' }, gr.items.length)));
+      gr.items.forEach(function (i) {
+        var c = imp.cards[i];
+        det.appendChild(h('label', { class: 'pick' }, h('input', { type: 'checkbox', id: 'pick-' + i, checked: !imp.off[i], onchange: function (e) { imp.off[i] = !e.target.checked; recount(); } }),
+          h('span', { class: 'pt' }, h('b', { class: c.frontIt ? 'it' : null, lang: c.frontIt ? 'it' : null }, plain(c.front)), h('span', null, plain(c.back).split('\n')[0]))));
+      });
+      list.appendChild(det);
+    });
+    root.appendChild(list);
+    root.appendChild(saveBtn);
+    root.appendChild(h('button', { class: 'btn ghost', id: 'discard', onclick: function () {
+      ask('Karten verwerfen?', 'Die erzeugten Karten gehen verloren.', 'Verwerfen', true).then(function (y) { if (y) { app.imp = null; render(); } });
+    } }, 'Verwerfen'));
+    return root;
+  }
+  function saveImport() {
+    var imp = app.imp, cards = imp.cards.filter(function (c, i) { return !imp.off[i]; }), deck, n;
+    var src = imp.materials.map(function (m) { return m.name; }).join(', ');
+    if (imp.target !== 'new' && deckById(imp.target)) { deck = deckById(imp.target); n = addCards(deck.id, cards); }
+    else { deck = addDeck({ name: (imp.name || '').trim() || 'Neues Deck', src: src }, cards); n = cards.length; }
+    if (g.navigator.storage && g.navigator.storage.persist) { try { g.navigator.storage.persist(); } catch (e) { /* egal */ } }
+    app.imp = null; app.deckId = deck.id;
+    go('deck');
+    toast(plural(n, 'Karte', 'Karten') + ' gespeichert.');
+  }
+
+  /* ---------- Optionen ---------- */
+  function viewOptions() {
+    var m = app.meta, st = m.settings, root = h('div', { class: 'stack' });
+    root.appendChild(h('header', { class: 'top' }, h('h1', { class: 'page-title' }, 'Optionen')));
+
+    var ks = app.keyState, keyPanel = h('section', { class: 'panel' }, h('p', { class: 'eyebrow' }, 'Claude-Zugang'));
+    keyPanel.appendChild(h('form', { class: 'stack-s', onsubmit: function (e) { e.preventDefault(); saveKey($('key').value.trim()); } },
+      h('div', { class: 'field' }, h('div', { class: 'flabel' }, h('label', { for: 'key' }, 'API-Key')),
+        h('input', { class: 'inp', id: 'key', type: 'password', value: app.key, placeholder: 'sk-ant-…', autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', style: 'font-family:var(--font-mono);font-size:16px' })),
+      h('div', { class: 'actions' }, h('button', { class: 'btn primary wide', type: 'submit', id: 'key-save', disabled: ks === 'busy' }, ks === 'busy' ? 'Prüfe …' : 'Speichern und testen'),
+        app.key ? h('button', { class: 'btn', type: 'button', id: 'key-del', onclick: function () { app.key = ''; S.store.del('key'); app.keyState = null; render(); toast('Key entfernt.'); } }, 'Entfernen') : null)));
+    if (ks && ks.ok) keyPanel.appendChild(h('div', { class: 'note', role: 'status' }, 'Verbindung steht. ' + plural(ks.n, 'Modell', 'Modelle') + ' verfügbar.'));
+    else if (ks && ks.err) keyPanel.appendChild(h('div', { class: 'note bad', role: 'alert' }, h('strong', null, ks.err.message), ks.err.detail ? h('span', { class: 'detail' }, ks.err.detail) : null));
+    var models = app.models && app.models.length ? app.models : S.MODELS, has = models.some(function (x) { return x.id === st.model; });
+    var msel = h('select', { class: 'sel', id: 'model', onchange: function (e) { st.model = e.target.value; saveMeta(); } },
+      models.map(function (x) { return h('option', { value: x.id }, x.name); }), has ? null : h('option', { value: st.model }, st.model));
+    msel.value = st.model;
+    keyPanel.appendChild(h('div', { class: 'field' }, h('div', { class: 'flabel' }, h('label', { for: 'model' }, 'Modell')), msel));
+    keyPanel.appendChild(h('p', { class: 'muted small' }, 'Den Key erstellst du in der ',
+      h('a', { href: 'https://platform.claude.com/settings/keys', target: '_blank', rel: 'noopener', style: 'color:var(--accent)' }, 'Claude Console unter „API Keys“'),
+      '. Er bleibt auf diesem Gerät und wird nur an api.anthropic.com gesendet. Die Kosten laufen über dein API-Konto. Lege dort am besten ein Ausgabenlimit fest.'));
+    root.appendChild(keyPanel);
+
+    var learn = h('section', { class: 'panel' }, h('p', { class: 'eyebrow' }, 'Lernen'));
+    var out = h('output', { id: 'npd', for: 'npd-minus npd-plus' }, st.newPerDay);
+    function step(d) { st.newPerDay = Math.max(0, Math.min(100, st.newPerDay + d)); out.textContent = st.newPerDay; saveMeta(); }
+    learn.appendChild(h('div', { class: 'opt' }, h('span', null, 'Neue Karten pro Tag'), h('span', { class: 'stepper' },
+      h('button', { type: 'button', id: 'npd-minus', 'aria-label': 'Weniger neue Karten', onclick: function () { step(-5); } }, '−'), out,
+      h('button', { type: 'button', id: 'npd-plus', 'aria-label': 'Mehr neue Karten', onclick: function () { step(5); } }, '+'))));
+    learn.appendChild(h('label', { class: 'opt' }, h('span', null, 'Fehlende Akzente als Fehler werten', h('br'), h('span', { class: 'muted small' }, 'Aus: caffe statt caffè gilt, mit Hinweis.')),
+      h('input', { type: 'checkbox', class: 'switch', id: 'strict', checked: st.strict, onchange: function (e) { st.strict = e.target.checked; saveMeta(); } })));
+    var lsel = h('select', { class: 'sel', id: 'lang', style: 'width:auto;min-width:150px', onchange: function (e) { st.lang = e.target.value; saveMeta(); } }, h('option', { value: 'de' }, 'Deutsch'), h('option', { value: 'en' }, 'Englisch'));
+    lsel.value = st.lang;
+    learn.appendChild(h('div', { class: 'opt' }, h('label', { for: 'lang' }, 'Sprache neuer Karten'), lsel));
+    root.appendChild(learn);
+
+    var data = h('section', { class: 'panel' }, h('p', { class: 'eyebrow' }, 'Daten'),
+      h('p', { class: 'muted small' }, S.store.persistent ? 'Karten und Lernstand liegen nur auf diesem Gerät. Ein Backup schützt vor Verlust und bringt sie auf ein anderes Gerät.' : 'Achtung: Dieser Browser speichert nichts dauerhaft. Exportiere ein Backup, bevor du die Seite schließt.'),
+      h('div', { class: 'actions' }, h('button', { class: 'btn wide', id: 'export', onclick: exportBackup }, 'Backup exportieren'),
+        h('label', { class: 'btn wide', for: 'restore' }, 'Backup laden', h('input', { class: 'vh', type: 'file', id: 'restore', accept: '.json,application/json', onchange: function (e) { importBackup(e.target.files[0]); e.target.value = ''; } }))),
+      h('button', { class: 'btn danger', id: 'wipe', onclick: function () {
+        ask('Alles löschen?', 'Alle Decks, der Lernstand und der API-Key werden von diesem Gerät entfernt.', 'Alles löschen', true).then(function (y) {
+          if (!y) return; S.store.clear(); app.sess = null; app.imp = null; app.keyState = null; load(); render(); toast('Alles gelöscht.');
+        });
+      } }, 'Alles löschen'));
+    root.appendChild(data);
+    root.appendChild(h('p', { class: 'muted small center' }, 'Schedario ' + (S.VERSION || '') + ' · Wartezeiten der Phasen: 1, 3, 9, 29 und 90 Tage'));
+    return root;
+  }
+  function saveKey(key) {
+    if (!key) { toast('Bitte einen Key eintragen.'); return; }
+    app.key = key; S.store.set('key', { k: key });
+    app.keyState = 'busy'; render();
+    S.api.models(key).then(function (list) {
+      app.models = list; S.store.set('models', { list: list });
+      if (list.length && !list.some(function (x) { return x.id === app.meta.settings.model; })) {
+        var pref = list.filter(function (x) { return /sonnet/.test(x.id); })[0] || list[0];
+        app.meta.settings.model = pref.id; saveMeta();
+      }
+      app.keyState = { ok: true, n: list.length };
+    }, function (err) { app.keyState = { err: err }; }).then(function () { if (app.route === 'optionen') render(); });
+  }
+  function exportBackup() {
+    var decks = {};
+    app.meta.decks.forEach(function (d) { decks[d.id] = (app.order[d.id] || []).map(function (id) { var c = Object.assign({}, app.cards[id]); delete c.deck; return c; }); });
+    var text = JSON.stringify({ app: 'schedario', v: 1, exported: new Date(S.now()).toISOString(), meta: app.meta, decks: decks });
+    var name = 'schedario-backup-' + new Date(S.now()).toISOString().slice(0, 10) + '.json';
+    var blob = new Blob([text], { type: 'application/json' });
+    try {
+      var file = new File([blob], name, { type: 'application/json' });
+      if (isIos() && g.navigator.canShare && g.navigator.canShare({ files: [file] })) {
+        g.navigator.share({ files: [file], title: name }).catch(function () { /* abgebrochen */ });
+        return;
+      }
+    } catch (e) { /* weiter mit Download */ }
+    var url = URL.createObjectURL(blob), a = h('a', { href: url, download: name });
+    doc.body.appendChild(a); a.click();
+    setTimeout(function () { a.remove(); URL.revokeObjectURL(url); }, 1000);
+    toast('Backup wird gespeichert.');
+  }
+  function importBackup(file) {
+    if (!file) return;
+    file.text().then(function (t) {
+      var j = JSON.parse(t);
+      if (!j || j.app !== 'schedario' || !j.meta || !j.decks) throw new Error('kein Schedario-Backup');
+      return ask('Backup laden?', 'Die Decks und der Lernstand auf diesem Gerät werden durch das Backup vom ' + String(j.exported || '').slice(0, 10) + ' ersetzt.', 'Ersetzen', true).then(function (y) {
+        if (!y) return;
+        var key = app.key, models = app.models;
+        S.store.clear();
+        if (key) S.store.set('key', { k: key });
+        if (models) S.store.set('models', { list: models });
+        S.store.set('meta', j.meta);
+        Object.keys(j.decks).forEach(function (id) { S.store.set('deck:' + id, { cards: j.decks[id] }); });
+        app.sess = null; app.imp = null; load(); render(); toast('Backup geladen.');
+      });
+    }).catch(function (e) { toast('Die Datei ist kein gültiges Backup (' + ((e && e.message) || e) + ').', 5000); });
+  }
+
+  /* ---------- Start ---------- */
+  function start() {
+    load();
+    g.addEventListener('hashchange', onHash);
+    ['heute', 'import', 'optionen'].forEach(function (r) {
+      $('tab-' + r).addEventListener('click', function (e) { e.preventDefault(); go(r); });
+    });
+    doc.addEventListener('visibilitychange', function () {
+      if (!doc.hidden && (app.route === 'heute' || (app.route === 'deck' && !app.edit && !app.rename))) render();
+    });
+    onHash();
+    if ('serviceWorker' in g.navigator && /^https?:$/.test(g.location.protocol)) {
+      g.navigator.serviceWorker.register('sw.js').catch(function () { /* ohne Offline-Modus */ });
+    }
+  }
+  S.start = start; S.render = render; S.go = go;
+  if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', start); else start();
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+Schedario – Italienisch-Karteikarten mit Claude
+================================================
+
+Inhalt dieses Ordners
+  index.html             die komplette App (läuft auch allein)
+  sw.js                  macht die App offline startfähig
+  manifest.webmanifest   Name und Icon für den Home-Bildschirm
+  icon-180.png, icon-512.png
+
+So kommt die App aufs iPhone (einmalig, ca. 10 Minuten)
+  1. Auf github.com anmelden, "New repository" wählen, Name z. B. "schedario",
+     Sichtbarkeit "Public", "Create repository".
+  2. Im neuen Repository auf "uploading an existing file" klicken, alle fünf
+     Dateien aus diesem Ordner hineinziehen, "Commit changes".
+  3. Settings > Pages > "Deploy from a branch", Branch "main", Ordner "/ (root)",
+     "Save". Nach etwa einer Minute steht dort die Adresse:
+     https://DEIN-NAME.github.io/schedario/
+  4. Diese Adresse auf dem iPhone in Safari öffnen, auf "Teilen" tippen,
+     "Zum Home-Bildschirm" wählen.
+  5. In der App unter "Optionen" den Claude-API-Key eintragen und
+     "Speichern und testen" antippen.
+     Den Key gibt es in der Claude Console: https://platform.claude.com/settings/keys
+
+Gut zu wissen
+  - Die Seite ist öffentlich erreichbar, enthält aber weder deinen Key noch deine
+    Karten. Beides liegt nur auf deinem Gerät.
+  - Karten und Lernstand liegen im Speicher des Browsers. Unter "Optionen" kannst
+    du ein Backup exportieren und auf einem anderen Gerät laden.
+  - Lernen geht offline. Für den Import braucht die App Internet.
+  - Update einspielen: neue index.html ins Repository hochladen. Die App zeigt die
+    neue Version beim zweiten Öffnen.
+
+Am PC ausprobieren
+  index.html im Browser öffnen. Falls der Browser den Aufruf der Claude-API von
+  einer lokalen Datei blockiert, die gehostete Adresse verwenden.
