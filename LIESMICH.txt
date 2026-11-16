@@ -27,8 +27,10 @@ Gut zu wissen
   - Karten und Lernstand liegen im Speicher des Browsers. Unter "Optionen" kannst
     du ein Backup exportieren und auf einem anderen Gerät laden.
   - Lernen geht offline. Für den Import braucht die App Internet.
-  - Update einspielen: neue index.html ins Repository hochladen. Die App zeigt die
-    neue Version beim zweiten Öffnen.
+  - Update einspielen: die neuen Dateien ins selbe Repository hochladen ("Add file" >
+    "Upload files", vorhandene werden ersetzt). Die App zeigt die neue Version
+    spätestens beim zweiten Öffnen; die Versionsnummer steht unten in "Optionen".
+    Karten, Lernstand und Key bleiben dabei erhalten, solange die Adresse gleich bleibt.
 
 Am PC ausprobieren
   index.html im Browser öffnen. Falls der Browser den Aufruf der Claude-API von
