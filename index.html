@@ -176,6 +176,21 @@ button { cursor: pointer; }
 .field.ok .inp { border-color: var(--ok); background: var(--ok-soft); }
 .field.bad .inp { border-color: var(--bad); background: var(--bad-soft); }
 .fix { font-size: 15px; color: var(--bad); }
+.fq { display: flex; align-items: center; justify-content: space-between; gap: 6px 12px; flex-wrap: wrap; }
+.fq-t { font-family: var(--font-display); font-size: 25px; line-height: 1.15; font-weight: 700; text-wrap: balance; min-width: 0; }
+.fq-d { font: 700 19px/1.2 var(--font-mono); font-variant-numeric: tabular-nums; padding: 5px 11px; border-radius: 9px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+.field + .field:has(.fq) { padding-top: 6px; border-top: 1px solid var(--line); }
+.fhint { font-size: 13.5px; line-height: 1.35; color: var(--muted); margin-top: -3px; }
+.inp::placeholder { color: var(--muted); opacity: 0.75; font-style: italic; }
+.diff { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: baseline; padding: 10px 12px; border-radius: 10px; background: var(--paper); border: 1px solid var(--line); font-size: 17px; line-height: 1.45; }
+.diff .dl { font: 700 11.5px/1.3 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.diff .dv { overflow-wrap: anywhere; min-width: 0; }
+.diff strong.dv { font-weight: 650; }
+.diff .dn { grid-column: 1 / -1; font-size: 14px; color: var(--muted); }
+mark.bad { background: var(--bad-soft); color: var(--bad); text-decoration: underline wavy var(--bad); text-underline-offset: 3px; border-radius: 3px; padding: 0 1px; }
+mark.miss { background: var(--ok-soft); color: var(--ok); font-weight: 800; border-radius: 3px; padding: 0 1px; }
+mark.sp { padding: 0 3px; }
+.fix.warn mark.miss { background: var(--warn-soft); color: var(--warn); }
 .fix.warn { color: var(--warn); }
 .fix strong { font-weight: 700; }
 .conj .field { flex-direction: row; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -183,6 +198,8 @@ button { cursor: pointer; }
 .conj .flabel label { font-family: var(--font-display); font-style: italic; font-size: 17px; font-weight: 500; }
 .conj .inp { flex: 1 1 120px; width: auto; min-width: 0; min-height: 46px; }
 .conj .fix { flex-basis: 100%; padding-left: 72px; }
+.conj .diff { flex-basis: 100%; margin-left: 72px; }
+@media (max-width: 360px) { .conj .diff { margin-left: 0; } }
 
 .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px; }
 .seg-b { min-height: 48px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--paper); font-family: var(--font-display); font-size: 21px; font-weight: 600; padding: 4px 2px; }
@@ -378,7 +395,101 @@ details.grp > summary .grow { overflow-wrap: anywhere; }
     for (var i = 0; i < nacc.length; i++) {
       if (S.fold(nacc[i]) === fu) return { ok: !strict, accent: true, expected: acc[i] };
     }
-    return { ok: false, accent: false, expected: expected };
+    // Falsch: als Korrektur die nächstliegende richtige Antwort zeigen, wenn sie nah genug ist, sonst die Musterlösung
+    var best = 0, bestD = Infinity;
+    for (i = 0; i < nacc.length; i++) {
+      var d = S.lev(u, nacc[i]) / Math.max(u.length, nacc[i].length, 1);
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    var exp2 = bestD <= 0.35 ? acc[best] : expected;
+    // nur das Ende des Satzes getippt, z. B. "le nove" statt "sono le nove"
+    var start = nacc.some(function (t) { return t.length > u.length && t.slice(-u.length - 1) === ' ' + u && u.split(' ').length >= 1; });
+    if (start) {
+      exp2 = acc[nacc.findIndex(function (t) { return t.slice(-u.length - 1) === ' ' + u; })];
+      if (/^[A-ZÀ-Ý]/.test(String(field.a))) exp2 = exp2.charAt(0).toUpperCase() + exp2.slice(1);
+    }
+    return { ok: false, accent: false, expected: exp2, missingStart: start };
+  };
+
+  /* ---------- Abstand und Unterschiede zweier Antworten ---------- */
+  S.lev = function (a, b) {
+    if (a === b) return 0;
+    var m = a.length, n = b.length, prev = [], cur, i, j;
+    for (j = 0; j <= n; j++) prev[j] = j;
+    for (i = 1; i <= m; i++) {
+      cur = [i];
+      for (j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1));
+      prev = cur;
+    }
+    return prev[n];
+  };
+  /* LCS über zwei Listen; eq(x, y) vergleicht. Liefert Paare [i, j] der Übereinstimmungen. */
+  function lcs(A, B, eq) {
+    var m = A.length, n = B.length, T = [], i, j;
+    for (i = 0; i <= m; i++) { T[i] = []; for (j = 0; j <= n; j++) T[i][j] = 0; }
+    for (i = m - 1; i >= 0; i--) for (j = n - 1; j >= 0; j--) T[i][j] = eq(A[i], B[j]) ? T[i + 1][j + 1] + 1 : Math.max(T[i + 1][j], T[i][j + 1]);
+    var out = []; i = 0; j = 0;
+    while (i < m && j < n) {
+      if (eq(A[i], B[j])) { out.push([i, j]); i++; j++; }
+      else if (T[i + 1][j] >= T[i][j + 1]) i++; else j++;
+    }
+    return out;
+  }
+  function charDiff(a, b, A, B) {
+    var pairs = lcs(a.toLowerCase().split(''), b.toLowerCase().split(''), function (x, y) { return x === y; });
+    var ma = {}, mb = {}, P = /[,.;:!?¿¡"«»()]/;
+    pairs.forEach(function (p) { ma[p[0]] = 1; mb[p[1]] = 1; });
+    for (var q = 0; q < a.length; q++) if (P.test(a.charAt(q))) ma[q] = 1;   // Satzzeichen nie als Fehler markieren
+    for (q = 0; q < b.length; q++) if (P.test(b.charAt(q))) mb[q] = 1;
+    function segs(str, m, out) {
+      for (var k = 0; k < str.length; k++) {
+        var x = !m[k], last = out[out.length - 1];
+        if (last && last.x === x && !last.sp) last.t += str.charAt(k); else out.push({ t: str.charAt(k), x: x });
+      }
+    }
+    segs(a, ma, A); segs(b, mb, B);
+  }
+  /* Markiert, wo sich die eigene Antwort von der richtigen unterscheidet.
+     Ergebnis: {you: [{t, x}], ok: [{t, x}]} – x = falsch (eigene) bzw. fehlte (richtige). */
+  S.diff = function (input, expected) {
+    var wa = String(input || '').trim().split(/\s+/).filter(Boolean), wb = String(expected || '').trim().split(/\s+/).filter(Boolean);
+    var key = function (w) { return S.norm(w).replace(/[,.;:!?¿¡"«»()]/g, ''); };
+    var pairs = lcs(wa, wb, function (x, y) { return key(x) === key(y); });
+    var A = [], B = [], i = 0, j = 0;
+    function space(L) { if (L.length) L.push({ t: ' ', x: false, sp: true }); }
+    function gap(ra, rb) {
+      if (!ra.length && !rb.length) return;
+      var ja = ra.join(' '), jb = rb.join(' ');
+      var sim = ra.length && rb.length ? 1 - S.lev(ja.toLowerCase(), jb.toLowerCase()) / Math.max(ja.length, jb.length) : 0;
+      if (sim >= 0.5) { space(A); space(B); charDiff(ja, jb, A, B); return; }
+      if (ra.length) { space(A); A.push({ t: ja, x: true }); }
+      if (rb.length) { space(B); B.push({ t: jb, x: true }); }
+    }
+    pairs.concat([[wa.length, wb.length]]).forEach(function (p) {
+      gap(wa.slice(i, p[0]), wb.slice(j, p[1]));
+      if (p[0] < wa.length) {
+        space(A); space(B);
+        // gleiches Wort, aber z. B. anderer Akzent oder Großschreibung: auf Buchstaben genau vergleichen
+        if (wa[p[0]].toLowerCase() !== wb[p[1]].toLowerCase()) charDiff(wa[p[0]], wb[p[1]], A, B);
+        else { A.push({ t: wa[p[0]], x: false }); B.push({ t: wb[p[1]], x: false }); }
+      }
+      i = p[0] + 1; j = p[1] + 1;
+    });
+    return { you: A, ok: B };
+  };
+
+  /* Was für eine Antwort erwartet wird (für Hinweis und Platzhalter im Eingabefeld) */
+  S.formHint = function (field, lang) {
+    if (field.h) return { h: field.h, ph: field.ph || '' };
+    var en = lang === 'en', a = String(field.a || '').trim();
+    if (!a || field.opts) return { h: '', ph: '' };
+    if (field.lenient) return { h: '', ph: en ? 'in English' : 'auf Deutsch' };
+    var words = a.split(/\s+/).length;
+    if (/\?$/.test(a)) return { h: en ? 'Whole question in Italian' : 'Ganze Frage auf Italienisch', ph: '' };
+    if (/[.!]$/.test(a) || words >= 5) return { h: en ? 'Whole sentence in Italian' : 'Ganzer Satz auf Italienisch', ph: '' };
+    if (/^(il|lo|la|i|gli|le|un|uno|una)\s/i.test(a) || /^(l|un)'/i.test(a)) return { h: en ? 'With the article' : 'Mit Artikel', ph: '' };
+    if (words === 1 && /(are|ere|ire|arsi|ersi|irsi|orre|urre)$/i.test(a)) return { h: '', ph: en ? 'infinitive' : 'Infinitiv' };
+    return { h: '', ph: '' };
   };
 
   /* ---------- Texte je Kartensprache ---------- */
@@ -393,7 +504,7 @@ details.grp > summary .grow { overflow-wrap: anywhere; }
       italian: 'Italienisch', plural: 'Plural', pluralSub: 'Plural mit Artikel bilden',
       conj: 'Konjugation', conjSub: 'Alle sechs Formen eintragen',
       voc: 'Wortschatz', toMe: 'Was bedeutet das?', toIt: 'Wie heißt das auf Italienisch?',
-      rule: 'Regel', cloze: 'Lückensatz', clozeSub: 'Was gehört in die Lücke?', gap: 'Lücke', answer: 'Antwort',
+      rule: 'Regel', cloze: 'Lückensatz', clozeSub: 'Was gehört in die Lücke?', gap: 'Lücke', answer: 'Antwort', gapHint: 'Nur das, was in die Lücke gehört',
       whyVowel: "Vor Vokal steht l' statt il oder la.", whyUnF: "Feminin vor Vokal: un'.", whyUnM: 'Maskulin bleibt un.',
       whyLo: 'Vor s + Konsonant, z, gn, ps, x, y stehen lo und uno.',
       form: 'Verbform', formSub: 'Auf Italienisch: die Form für **{p}**',
@@ -412,7 +523,7 @@ details.grp > summary .grow { overflow-wrap: anywhere; }
       italian: 'Italian', plural: 'Plural', pluralSub: 'Form the plural with its article',
       conj: 'Conjugation', conjSub: 'Fill in all six forms',
       voc: 'Vocabulary', toMe: 'What does it mean?', toIt: 'How do you say it in Italian?',
-      rule: 'Rule', cloze: 'Fill the gap', clozeSub: 'What goes in the gap?', gap: 'Gap', answer: 'Answer',
+      rule: 'Rule', cloze: 'Fill the gap', clozeSub: 'What goes in the gap?', gap: 'Gap', answer: 'Answer', gapHint: 'Only what goes in the gap',
       whyVowel: "Before a vowel the article is l', not il or la.", whyUnF: "Feminine before a vowel: un'.", whyUnM: 'Masculine stays un.',
       whyLo: 'Before s + consonant, z, gn, ps, x, y use lo and uno.',
       form: 'Verb form', formSub: 'In Italian: the form for **{p}**',
@@ -542,7 +653,7 @@ details.grp > summary .grow { overflow-wrap: anywhere; }
       var satz = clean(r.satz).replace(/_{3,}/g, '___'), la = clean(r.a), lm = clean(r.m);
       if (!satz || !la || satz.indexOf('___') < 0) return out;
       card({ kind: 'cloze', eyebrow: thema || T.cloze, front: satz, frontIt: true, sub: lm || T.clozeSub,
-        fields: [{ l: T.gap, a: la, alt: list(r.alt), it: true }],
+        fields: [{ l: T.gap, a: la, alt: list(r.alt), it: true, h: T.gapHint, ph: '' }],
         back: satz.replace('___', '**' + la + '**') + (lm ? '\n' + lm : '') });
       return out;
     }
@@ -592,7 +703,7 @@ details.grp > summary .grow { overflow-wrap: anywhere; }
         v.variant = variant; v.eyebrow = T.form + ' · ' + x.tempus;
         v.front = c.front + '\n*' + person + '* ___';
         v.sub = T.formSub.replace('{p}', person);
-        v.fields = [{ l: person, a: form[0], alt: form.slice(1), it: true }];
+        v.fields = [{ l: person, a: form[0], alt: form.slice(1), it: true, h: x.lang === 'en' ? 'Only the verb form, without the pronoun' : 'Nur die Verbform, ohne das Pronomen', ph: x.lang === 'en' ? 'verb form' : 'Verbform' }];
         v.back = '*' + person + '* **' + form[0] + '** — ' + c.front + '\n*' + x.inf + '*: ' + x.forms.map(function (f) { return f[0]; }).join(', ');
       } else if (x.t === 'n' && variant === 'pl' && x.pls && x.pls.length) {
         var meaning = null;
@@ -759,14 +870,16 @@ details.grp > summary .grow { overflow-wrap: anywhere; }
       '4. Notizen aus dem Unterricht enthalten persönliche Beispiele (Namen, Alter, Wohnort von Mitlernenden). Mach daraus allgemeine Muster; keine Karten über diese Personen.',
       '5. Leite die Regeln ab, die das Material zeigt oder voraussetzt (z. B. è l\'una / sono le due; Scusi bei Lei, Scusa bei tu; il sabato = samstags; né … né; sia … che) und erzeuge dazu "regel"-Karten.',
       '6. Prüfe jede italienische Form: Akzente (caffè, città, è), Apostroph (l\'amico, un\'amica), Doppelkonsonanten.',
-      '7. Ziel: so wenige Karten wie möglich, ohne Lernstoff wegzulassen. Eine Unterrichtsstunde ergibt typischerweise 15 bis 35 Zeilen.'
+      '7. Formuliere jede Frage so, dass eindeutig ist, welche Antwort erwartet wird: ein Wort, ein Wort mit Artikel, eine Verbform oder ein ganzer Satz. Bei Themenkarten sagt q die Form der Antwort (z. B. „Auf Italienisch, mit Artikel“, „Antworte im ganzen Satz“); f nennt genau, was gefragt ist. Bei Regelkarten mit kurz sagt die Frage, was getippt werden soll (z. B. „Welcher Artikel …?“).',
+      '8. Ziel: so wenige Karten wie möglich, ohne Lernstoff wegzulassen. Eine Unterrichtsstunde ergibt typischerweise 15 bis 35 Zeilen.'
     ] : [
       '1. Erkenne, was das Material üben will. Hat ein Arbeitsblatt leere Spalten oder Lücken (z. B. Spalten für Genus, Artikel und Bedeutung neben einer Wortliste), dann fülle sie selbst korrekt aus: Die Lösungen sind der Lernstoff.',
       '2. Bei Wortlisten und Tabellen: Erfasse jedes italienische Wort genau einmal im passenden Kartentyp, lass keines aus. Bei Fließtexten und Dialogen: Erfasse den Lernwortschatz (neue, inhaltstragende Wörter und Wendungen), nicht jedes Funktionswort. Setze durch Zeilenumbruch getrennte Wortteile wieder zusammen. Für Zahlen, Uhrzeiten, Daten, Wochentage, Monate und Jahreszeiten nimm stattdessen den generator.',
       '3. Leite die Regeln ab, die das Material zeigt oder voraussetzt (z. B. wann il, lo, l\', la und un, uno, una, un\' stehen; was die Endungen -o, -a, -e über das Genus sagen; die Endungen einer Konjugation) und erzeuge dazu "regel"-Karten.',
       '4. Erzeuge "regel"-Karten auch für die Stolperfallen, die im Material tatsächlich vorkommen (z. B. Nomen auf -e, deren Genus man mitlernen muss; Maskulina auf -a; unregelmäßige Formen).',
       '5. Bleib beim Material. Ergänze nur, was zum Verstehen nötig ist: fehlende Übersetzung, Genus, Artikel, vollständige Konjugation eines vorkommenden Verbs, die Regel hinter den Beispielen.',
-      '6. Prüfe jede italienische Form: Akzente (caffè, città, è), Apostroph (l\'amico, un\'amica), Doppelkonsonanten.'
+      '6. Prüfe jede italienische Form: Akzente (caffè, città, è), Apostroph (l\'amico, un\'amica), Doppelkonsonanten.',
+      '7. Formuliere jede Frage so, dass eindeutig ist, welche Antwort erwartet wird: ein Wort, ein Wort mit Artikel, eine Verbform oder ein ganzer Satz. Bei Themenkarten sagt q die Form der Antwort (z. B. „Auf Italienisch, mit Artikel“, „Antworte im ganzen Satz“); f nennt genau, was gefragt ist. Bei Regelkarten mit kurz sagt die Frage, was getippt werden soll (z. B. „Welcher Artikel …?“).'
     ];
     var lines = [
       'Du bist ein erfahrener Italienischlehrer und erstellst Lernkarten für eine Karteikarten-App mit Wiederholsystem.',
@@ -811,7 +924,7 @@ details.grp > summary .grow { overflow-wrap: anywhere; }
   if (typeof module !== 'undefined' && module.exports) module.exports = S;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
-S = globalThis.S = globalThis.S || {}; S.VERSION = "1.2"; S.SEED = "{\"k\":\"nomen\",\"it\":\"amico\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Freund\",\"pl\":\"gli amici\",\"plinfo\":\"Ausnahme: -co wird hier zu -ci, nicht zu -chi.\"}\n{\"k\":\"nomen\",\"it\":\"autobus\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Bus\",\"info\":\"Endet auf Konsonant: Fremdwort, maskulin.\",\"pl\":\"gli autobus\",\"plinfo\":\"Endet auf Konsonant: im Plural unverändert.\"}\n{\"k\":\"nomen\",\"it\":\"amore\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"die Liebe\",\"info\":\"Wörter auf -ore sind maskulin.\",\"pl\":\"gli amori\"}\n{\"k\":\"nomen\",\"it\":\"autunno\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Herbst\",\"pl\":\"gli autunni\"}\n{\"k\":\"nomen\",\"it\":\"aereo\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"das Flugzeug\",\"pl\":\"gli aerei\"}\n{\"k\":\"nomen\",\"it\":\"acqua\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"das Wasser\",\"pl\":\"le acque\"}\n{\"k\":\"nomen\",\"it\":\"appartamento\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"die Wohnung\",\"pl\":\"gli appartamenti\"}\n{\"k\":\"nomen\",\"it\":\"autostrada\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"die Autobahn\",\"pl\":\"le autostrade\"}\n{\"k\":\"nomen\",\"it\":\"aeroporto\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Flughafen\",\"pl\":\"gli aeroporti\"}\n{\"k\":\"nomen\",\"it\":\"antipasto\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"die Vorspeise\",\"pl\":\"gli antipasti\"}\n{\"k\":\"nomen\",\"it\":\"bambino\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Kind; der Junge\",\"pl\":\"i bambini\"}\n{\"k\":\"nomen\",\"it\":\"biblioteca\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"die Bibliothek\",\"pl\":\"le biblioteche\",\"plinfo\":\"-ca wird zu -che: Das h erhält den k-Laut.\"}\n{\"k\":\"nomen\",\"it\":\"birra\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Bier\",\"pl\":\"le birre\"}\n{\"k\":\"nomen\",\"it\":\"bicicletta\",\"alt\":[\"bici\"],\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Fahrrad\",\"info\":\"Kurzform: la bici.\",\"pl\":\"le biciclette\",\"plalt\":[\"le bici\"],\"plinfo\":\"Die Kurzform bleibt unverändert: le bici.\"}\n{\"k\":\"nomen\",\"it\":\"bocca\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"der Mund\",\"pl\":\"le bocche\",\"plinfo\":\"-ca wird zu -che: Das h erhält den k-Laut.\"}\n{\"k\":\"nomen\",\"it\":\"biscotto\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Keks\",\"pl\":\"i biscotti\"}\n{\"k\":\"nomen\",\"it\":\"caffè\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Kaffee\",\"info\":\"Mit Akzent schreiben: caffè.\",\"pl\":\"i caffè\",\"plinfo\":\"Endet auf betonten Vokal: im Plural unverändert.\"}\n{\"k\":\"nomen\",\"it\":\"carne\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Fleisch\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"le carni\"}\n{\"k\":\"nomen\",\"it\":\"cuoco\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Koch\",\"pl\":\"i cuochi\",\"plinfo\":\"-co wird zu -chi: Das h erhält den k-Laut.\"}\n{\"k\":\"nomen\",\"it\":\"cantante\",\"g\":\"m/f\",\"det\":\"il/la\",\"indet\":\"un/una\",\"m\":\"der Sänger; die Sängerin\",\"info\":\"Eine Form für beide, nur der Artikel wechselt.\",\"pl\":\"i cantanti / le cantanti\"}\n{\"k\":\"nomen\",\"it\":\"canzone\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Lied\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"le canzoni\"}\n{\"k\":\"nomen\",\"it\":\"cane\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Hund\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"i cani\"}\n{\"k\":\"nomen\",\"it\":\"cavallo\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Pferd\",\"pl\":\"i cavalli\"}\n{\"k\":\"nomen\",\"it\":\"capello\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Haar\",\"info\":\"Ein einzelnes Haar. Die Haare auf dem Kopf: i capelli.\",\"pl\":\"i capelli\"}\n{\"k\":\"nomen\",\"it\":\"cuore\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Herz\",\"info\":\"Wörter auf -ore sind maskulin.\",\"pl\":\"i cuori\"}\n{\"k\":\"nomen\",\"it\":\"dolce\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Nachtisch; die Süßspeise\",\"info\":\"Als Adjektiv heißt dolce „süß“.\",\"pl\":\"i dolci\"}\n{\"k\":\"nomen\",\"it\":\"dottore\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Arzt; der Doktor\",\"info\":\"Wörter auf -ore sind maskulin.\",\"pl\":\"i dottori\"}\n{\"k\":\"nomen\",\"it\":\"dio\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Gott\",\"pl\":\"gli dei\",\"plinfo\":\"Unregelmäßig: gli dei, mit dem Artikel gli.\"}\n{\"k\":\"nomen\",\"it\":\"dito\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Finger\",\"pl\":\"le dita\",\"plinfo\":\"Unregelmäßig: Der Plural ist feminin und endet auf -a.\"}\n{\"k\":\"nomen\",\"it\":\"dente\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Zahn\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"i denti\"}\n{\"k\":\"nomen\",\"it\":\"elefante\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Elefant\",\"pl\":\"gli elefanti\"}\n{\"k\":\"nomen\",\"it\":\"entrata\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"der Eingang\",\"pl\":\"le entrate\"}\n{\"k\":\"nomen\",\"it\":\"estate\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"der Sommer\",\"info\":\"Feminin, anders als im Deutschen.\",\"pl\":\"le estati\"}\n{\"k\":\"nomen\",\"it\":\"frutto\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"die Frucht\",\"info\":\"Die einzelne Frucht. Obst allgemein: la frutta.\",\"pl\":\"i frutti\"}\n{\"k\":\"nomen\",\"it\":\"fragola\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"die Erdbeere\",\"pl\":\"le fragole\"}\n{\"k\":\"nomen\",\"it\":\"finestra\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Fenster\",\"pl\":\"le finestre\"}\n{\"k\":\"nomen\",\"it\":\"formaggio\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Käse\",\"pl\":\"i formaggi\",\"plinfo\":\"-io mit unbetontem i: im Plural nur ein -i.\"}\n{\"k\":\"nomen\",\"it\":\"fratello\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Bruder\",\"pl\":\"i fratelli\"}\n{\"k\":\"nomen\",\"it\":\"fine\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Ende\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"le fini\"}\n{\"k\":\"nomen\",\"it\":\"farmacia\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"die Apotheke\",\"pl\":\"le farmacie\",\"plinfo\":\"Das betonte i bleibt: -cia wird zu -cie.\"}\n{\"k\":\"nomen\",\"it\":\"felicità\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Glück\",\"info\":\"Wörter auf -tà sind feminin.\"}\n{\"k\":\"nomen\",\"it\":\"frase\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"der Satz\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"le frasi\"}\n{\"k\":\"nomen\",\"it\":\"fungo\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Pilz\",\"pl\":\"i funghi\",\"plinfo\":\"-go wird zu -ghi: Das h erhält den g-Laut.\"}\n{\"k\":\"nomen\",\"it\":\"fumo\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Rauch\",\"pl\":\"i fumi\"}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Welcher bestimmte Artikel steht vor maskulinen Nomen, die mit einem Konsonanten beginnen, z. B. *bambino*?\",\"a\":\"**il** – *il bambino, il cane, il formaggio*\",\"kurz\":[\"il\"]}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Welcher bestimmte Artikel steht vor femininen Nomen, die mit einem Konsonanten beginnen, z. B. *birra*?\",\"a\":\"**la** – *la birra, la finestra, la carne*\",\"kurz\":[\"la\"]}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Welcher bestimmte Artikel steht vor Nomen, die mit einem Vokal beginnen, z. B. *amico* oder *acqua*?\",\"a\":\"**l'** – für beide Genera: *l'amico* (m), *l'acqua* (f), *l'estate* (f)\",\"kurz\":[\"l'\"]}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Wann heißt der maskuline bestimmte Artikel *lo* statt *il*?\",\"a\":\"Vor **s + Konsonant, z, gn, ps, x, y**: *lo studente, lo zio, lo gnocco*.\",\"info\":\"In dieser Wortliste kommt kein solches Wort vor.\"}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Welcher unbestimmte Artikel steht vor maskulinen Nomen wie *bambino* oder *amico*?\",\"a\":\"**un** – vor Konsonant und vor Vokal: *un bambino, un amico, un elefante*\",\"kurz\":[\"un\"]}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Welcher unbestimmte Artikel steht vor femininen Nomen, die mit einem Konsonanten beginnen, z. B. *birra*?\",\"a\":\"**una** – *una birra, una finestra, una frase*\",\"kurz\":[\"una\"]}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Welcher unbestimmte Artikel steht vor femininen Nomen, die mit einem Vokal beginnen, z. B. *acqua*?\",\"a\":\"**un'** – *un'acqua, un'entrata, un'estate*\",\"kurz\":[\"un'\"]}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"*l'amico* und *l'acqua* haben denselben bestimmten Artikel. Woran erkennst du trotzdem das Genus?\",\"a\":\"Am **unbestimmten Artikel**: *un amico* (maskulin, ohne Apostroph) – *un'acqua* (feminin, mit Apostroph).\"}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Wann heißt der maskuline unbestimmte Artikel *uno* statt *un*?\",\"a\":\"In denselben Fällen wie *lo*: vor **s + Konsonant, z, gn, ps, x, y** – *uno studente, uno zio*.\",\"info\":\"In dieser Wortliste kommt kein solches Wort vor.\"}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-o* in der Regel?\",\"a\":\"**maskulin** – *il bambino, il cavallo, l'aeroporto*\",\"kurz\":[\"maskulin\",\"m\",\"maschile\",\"männlich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-a* in der Regel?\",\"a\":\"**feminin** – *la birra, la farmacia, l'autostrada*\",\"kurz\":[\"feminin\",\"f\",\"femminile\",\"weiblich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Was sagt die Endung *-e* über das Genus eines Nomens?\",\"a\":\"**Nichts Sicheres.** Nomen auf *-e* können maskulin oder feminin sein, das Genus lernt man mit: *il cane, il dente, il cuore* – *la carne, la frase, la canzone*.\"}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-ore*, z. B. *amore, cuore, dottore*?\",\"a\":\"**maskulin** – *l'amore, il cuore, il dottore*\",\"kurz\":[\"maskulin\",\"m\",\"maschile\",\"männlich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-tà*, z. B. *felicità*?\",\"a\":\"**feminin** – *la felicità*\",\"kurz\":[\"feminin\",\"f\",\"femminile\",\"weiblich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"*cantante* hat nur eine Form. Wie zeigst du, ob ein Sänger oder eine Sängerin gemeint ist?\",\"a\":\"Mit dem **Artikel**: *il cantante* (der Sänger) – *la cantante* (die Sängerin).\"}\n{\"k\":\"regel\",\"thema\":\"Stolperfallen\",\"q\":\"*estate, fine, frase, carne, canzone*: Welches Genus haben diese Nomen auf *-e*, und was ist daran tückisch?\",\"a\":\"Alle fünf sind **feminin**. Tückisch: Im Deutschen heißt es *der* Sommer und *der* Satz, *das* Ende, *das* Fleisch, *das* Lied.\"}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Wie bilden maskuline Nomen auf *-o* den Plural?\",\"a\":\"Mit **-i** – *il bambino → i bambini, il cavallo → i cavalli*\",\"kurz\":[\"-i\",\"i\"]}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Wie bilden feminine Nomen auf *-a* den Plural?\",\"a\":\"Mit **-e** – *la birra → le birre, la finestra → le finestre*\",\"kurz\":[\"-e\",\"e\"]}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Wie bilden Nomen auf *-e* den Plural?\",\"a\":\"Mit **-i**, egal ob maskulin oder feminin – *il cane → i cani, la canzone → le canzoni*\",\"kurz\":[\"-i\",\"i\"]}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Wie lauten die bestimmten Artikel im Plural?\",\"a\":\"**i** (zu *il*), **gli** (zu *lo* und maskulinem *l'*), **le** (zu *la* und femininem *l'*) – *i cani, gli amici, le birre, le acque*\"}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Welche Nomen bleiben im Plural unverändert?\",\"a\":\"Nomen auf **betonten Vokal** und auf **Konsonant** – *il caffè → i caffè, l'autobus → gli autobus*\"}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Was passiert im Plural bei Nomen auf *-co, -go, -ca, -ga*?\",\"a\":\"Meist kommt ein **h** dazu, damit der harte Laut bleibt – *il cuoco → i cuochi, il fungo → i funghi, la biblioteca → le biblioteche*. Ausnahme: *l'amico → gli amici*.\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ amico di Marco è simpatico.\",\"a\":\"L'\",\"m\":\"Marcos Freund ist sympathisch.\",\"info\":\"vor Vokal\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ birra è fredda.\",\"a\":\"La\",\"m\":\"Das Bier ist kalt.\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ cane ha fame.\",\"a\":\"Il\",\"m\":\"Der Hund hat Hunger.\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ estate è bella.\",\"a\":\"L'\",\"m\":\"Der Sommer ist schön.\",\"info\":\"vor Vokal; estate ist feminin\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"Dov'è ___ farmacia?\",\"a\":\"la\",\"m\":\"Wo ist die Apotheke?\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ dottore parla italiano.\",\"a\":\"Il\",\"m\":\"Der Arzt spricht Italienisch.\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"Vorrei ___ caffè, per favore.\",\"a\":\"un\",\"m\":\"Ich hätte gern einen Kaffee, bitte.\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"Vorrei ___ acqua, per favore.\",\"a\":\"un'\",\"m\":\"Ich hätte gern ein Wasser, bitte.\",\"info\":\"feminin, vor Vokal\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"Marco ha ___ bicicletta.\",\"a\":\"una\",\"m\":\"Marco hat ein Fahrrad.\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"C'è ___ aeroporto qui?\",\"a\":\"un\",\"m\":\"Gibt es hier einen Flughafen?\",\"info\":\"maskulin: un, auch vor Vokal\"}\n";
+S = globalThis.S = globalThis.S || {}; S.VERSION = "1.3.1"; S.SEED = "{\"k\":\"nomen\",\"it\":\"amico\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Freund\",\"pl\":\"gli amici\",\"plinfo\":\"Ausnahme: -co wird hier zu -ci, nicht zu -chi.\"}\n{\"k\":\"nomen\",\"it\":\"autobus\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Bus\",\"info\":\"Endet auf Konsonant: Fremdwort, maskulin.\",\"pl\":\"gli autobus\",\"plinfo\":\"Endet auf Konsonant: im Plural unverändert.\"}\n{\"k\":\"nomen\",\"it\":\"amore\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"die Liebe\",\"info\":\"Wörter auf -ore sind maskulin.\",\"pl\":\"gli amori\"}\n{\"k\":\"nomen\",\"it\":\"autunno\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Herbst\",\"pl\":\"gli autunni\"}\n{\"k\":\"nomen\",\"it\":\"aereo\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"das Flugzeug\",\"pl\":\"gli aerei\"}\n{\"k\":\"nomen\",\"it\":\"acqua\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"das Wasser\",\"pl\":\"le acque\"}\n{\"k\":\"nomen\",\"it\":\"appartamento\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"die Wohnung\",\"pl\":\"gli appartamenti\"}\n{\"k\":\"nomen\",\"it\":\"autostrada\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"die Autobahn\",\"pl\":\"le autostrade\"}\n{\"k\":\"nomen\",\"it\":\"aeroporto\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Flughafen\",\"pl\":\"gli aeroporti\"}\n{\"k\":\"nomen\",\"it\":\"antipasto\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"die Vorspeise\",\"pl\":\"gli antipasti\"}\n{\"k\":\"nomen\",\"it\":\"bambino\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Kind; der Junge\",\"pl\":\"i bambini\"}\n{\"k\":\"nomen\",\"it\":\"biblioteca\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"die Bibliothek\",\"pl\":\"le biblioteche\",\"plinfo\":\"-ca wird zu -che: Das h erhält den k-Laut.\"}\n{\"k\":\"nomen\",\"it\":\"birra\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Bier\",\"pl\":\"le birre\"}\n{\"k\":\"nomen\",\"it\":\"bicicletta\",\"alt\":[\"bici\"],\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Fahrrad\",\"info\":\"Kurzform: la bici.\",\"pl\":\"le biciclette\",\"plalt\":[\"le bici\"],\"plinfo\":\"Die Kurzform bleibt unverändert: le bici.\"}\n{\"k\":\"nomen\",\"it\":\"bocca\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"der Mund\",\"pl\":\"le bocche\",\"plinfo\":\"-ca wird zu -che: Das h erhält den k-Laut.\"}\n{\"k\":\"nomen\",\"it\":\"biscotto\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Keks\",\"pl\":\"i biscotti\"}\n{\"k\":\"nomen\",\"it\":\"caffè\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Kaffee\",\"info\":\"Mit Akzent schreiben: caffè.\",\"pl\":\"i caffè\",\"plinfo\":\"Endet auf betonten Vokal: im Plural unverändert.\"}\n{\"k\":\"nomen\",\"it\":\"carne\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Fleisch\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"le carni\"}\n{\"k\":\"nomen\",\"it\":\"cuoco\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Koch\",\"pl\":\"i cuochi\",\"plinfo\":\"-co wird zu -chi: Das h erhält den k-Laut.\"}\n{\"k\":\"nomen\",\"it\":\"cantante\",\"g\":\"m/f\",\"det\":\"il/la\",\"indet\":\"un/una\",\"m\":\"der Sänger; die Sängerin\",\"info\":\"Eine Form für beide, nur der Artikel wechselt.\",\"pl\":\"i cantanti / le cantanti\"}\n{\"k\":\"nomen\",\"it\":\"canzone\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Lied\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"le canzoni\"}\n{\"k\":\"nomen\",\"it\":\"cane\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Hund\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"i cani\"}\n{\"k\":\"nomen\",\"it\":\"cavallo\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Pferd\",\"pl\":\"i cavalli\"}\n{\"k\":\"nomen\",\"it\":\"capello\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Haar\",\"info\":\"Ein einzelnes Haar. Die Haare auf dem Kopf: i capelli.\",\"pl\":\"i capelli\"}\n{\"k\":\"nomen\",\"it\":\"cuore\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Herz\",\"info\":\"Wörter auf -ore sind maskulin.\",\"pl\":\"i cuori\"}\n{\"k\":\"nomen\",\"it\":\"dolce\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Nachtisch; die Süßspeise\",\"info\":\"Als Adjektiv heißt dolce „süß“.\",\"pl\":\"i dolci\"}\n{\"k\":\"nomen\",\"it\":\"dottore\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Arzt; der Doktor\",\"info\":\"Wörter auf -ore sind maskulin.\",\"pl\":\"i dottori\"}\n{\"k\":\"nomen\",\"it\":\"dio\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Gott\",\"pl\":\"gli dei\",\"plinfo\":\"Unregelmäßig: gli dei, mit dem Artikel gli.\"}\n{\"k\":\"nomen\",\"it\":\"dito\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Finger\",\"pl\":\"le dita\",\"plinfo\":\"Unregelmäßig: Der Plural ist feminin und endet auf -a.\"}\n{\"k\":\"nomen\",\"it\":\"dente\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Zahn\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"i denti\"}\n{\"k\":\"nomen\",\"it\":\"elefante\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Elefant\",\"pl\":\"gli elefanti\"}\n{\"k\":\"nomen\",\"it\":\"entrata\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"der Eingang\",\"pl\":\"le entrate\"}\n{\"k\":\"nomen\",\"it\":\"estate\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"der Sommer\",\"info\":\"Feminin, anders als im Deutschen.\",\"pl\":\"le estati\"}\n{\"k\":\"nomen\",\"it\":\"frutto\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"die Frucht\",\"info\":\"Die einzelne Frucht. Obst allgemein: la frutta.\",\"pl\":\"i frutti\"}\n{\"k\":\"nomen\",\"it\":\"fragola\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"die Erdbeere\",\"pl\":\"le fragole\"}\n{\"k\":\"nomen\",\"it\":\"finestra\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Fenster\",\"pl\":\"le finestre\"}\n{\"k\":\"nomen\",\"it\":\"formaggio\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Käse\",\"pl\":\"i formaggi\",\"plinfo\":\"-io mit unbetontem i: im Plural nur ein -i.\"}\n{\"k\":\"nomen\",\"it\":\"fratello\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Bruder\",\"pl\":\"i fratelli\"}\n{\"k\":\"nomen\",\"it\":\"fine\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Ende\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"le fini\"}\n{\"k\":\"nomen\",\"it\":\"farmacia\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"die Apotheke\",\"pl\":\"le farmacie\",\"plinfo\":\"Das betonte i bleibt: -cia wird zu -cie.\"}\n{\"k\":\"nomen\",\"it\":\"felicità\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Glück\",\"info\":\"Wörter auf -tà sind feminin.\"}\n{\"k\":\"nomen\",\"it\":\"frase\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"der Satz\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"le frasi\"}\n{\"k\":\"nomen\",\"it\":\"fungo\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Pilz\",\"pl\":\"i funghi\",\"plinfo\":\"-go wird zu -ghi: Das h erhält den g-Laut.\"}\n{\"k\":\"nomen\",\"it\":\"fumo\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Rauch\",\"pl\":\"i fumi\"}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Welcher bestimmte Artikel steht vor maskulinen Nomen, die mit einem Konsonanten beginnen, z. B. *bambino*?\",\"a\":\"**il** – *il bambino, il cane, il formaggio*\",\"kurz\":[\"il\"]}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Welcher bestimmte Artikel steht vor femininen Nomen, die mit einem Konsonanten beginnen, z. B. *birra*?\",\"a\":\"**la** – *la birra, la finestra, la carne*\",\"kurz\":[\"la\"]}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Welcher bestimmte Artikel steht vor Nomen, die mit einem Vokal beginnen, z. B. *amico* oder *acqua*?\",\"a\":\"**l'** – für beide Genera: *l'amico* (m), *l'acqua* (f), *l'estate* (f)\",\"kurz\":[\"l'\"]}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Wann heißt der maskuline bestimmte Artikel *lo* statt *il*?\",\"a\":\"Vor **s + Konsonant, z, gn, ps, x, y**: *lo studente, lo zio, lo gnocco*.\",\"info\":\"In dieser Wortliste kommt kein solches Wort vor.\"}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Welcher unbestimmte Artikel steht vor maskulinen Nomen wie *bambino* oder *amico*?\",\"a\":\"**un** – vor Konsonant und vor Vokal: *un bambino, un amico, un elefante*\",\"kurz\":[\"un\"]}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Welcher unbestimmte Artikel steht vor femininen Nomen, die mit einem Konsonanten beginnen, z. B. *birra*?\",\"a\":\"**una** – *una birra, una finestra, una frase*\",\"kurz\":[\"una\"]}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Welcher unbestimmte Artikel steht vor femininen Nomen, die mit einem Vokal beginnen, z. B. *acqua*?\",\"a\":\"**un'** – *un'acqua, un'entrata, un'estate*\",\"kurz\":[\"un'\"]}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"*l'amico* und *l'acqua* haben denselben bestimmten Artikel. Woran erkennst du trotzdem das Genus?\",\"a\":\"Am **unbestimmten Artikel**: *un amico* (maskulin, ohne Apostroph) – *un'acqua* (feminin, mit Apostroph).\"}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Wann heißt der maskuline unbestimmte Artikel *uno* statt *un*?\",\"a\":\"In denselben Fällen wie *lo*: vor **s + Konsonant, z, gn, ps, x, y** – *uno studente, uno zio*.\",\"info\":\"In dieser Wortliste kommt kein solches Wort vor.\"}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-o* in der Regel?\",\"a\":\"**maskulin** – *il bambino, il cavallo, l'aeroporto*\",\"kurz\":[\"maskulin\",\"m\",\"maschile\",\"männlich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-a* in der Regel?\",\"a\":\"**feminin** – *la birra, la farmacia, l'autostrada*\",\"kurz\":[\"feminin\",\"f\",\"femminile\",\"weiblich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Was sagt die Endung *-e* über das Genus eines Nomens?\",\"a\":\"**Nichts Sicheres.** Nomen auf *-e* können maskulin oder feminin sein, das Genus lernt man mit: *il cane, il dente, il cuore* – *la carne, la frase, la canzone*.\"}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-ore*, z. B. *amore, cuore, dottore*?\",\"a\":\"**maskulin** – *l'amore, il cuore, il dottore*\",\"kurz\":[\"maskulin\",\"m\",\"maschile\",\"männlich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-tà*, z. B. *felicità*?\",\"a\":\"**feminin** – *la felicità*\",\"kurz\":[\"feminin\",\"f\",\"femminile\",\"weiblich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"*cantante* hat nur eine Form. Wie zeigst du, ob ein Sänger oder eine Sängerin gemeint ist?\",\"a\":\"Mit dem **Artikel**: *il cantante* (der Sänger) – *la cantante* (die Sängerin).\"}\n{\"k\":\"regel\",\"thema\":\"Stolperfallen\",\"q\":\"*estate, fine, frase, carne, canzone*: Welches Genus haben diese Nomen auf *-e*, und was ist daran tückisch?\",\"a\":\"Alle fünf sind **feminin**. Tückisch: Im Deutschen heißt es *der* Sommer und *der* Satz, *das* Ende, *das* Fleisch, *das* Lied.\"}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Wie bilden maskuline Nomen auf *-o* den Plural?\",\"a\":\"Mit **-i** – *il bambino → i bambini, il cavallo → i cavalli*\",\"kurz\":[\"-i\",\"i\"]}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Wie bilden feminine Nomen auf *-a* den Plural?\",\"a\":\"Mit **-e** – *la birra → le birre, la finestra → le finestre*\",\"kurz\":[\"-e\",\"e\"]}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Wie bilden Nomen auf *-e* den Plural?\",\"a\":\"Mit **-i**, egal ob maskulin oder feminin – *il cane → i cani, la canzone → le canzoni*\",\"kurz\":[\"-i\",\"i\"]}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Wie lauten die bestimmten Artikel im Plural?\",\"a\":\"**i** (zu *il*), **gli** (zu *lo* und maskulinem *l'*), **le** (zu *la* und femininem *l'*) – *i cani, gli amici, le birre, le acque*\"}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Welche Nomen bleiben im Plural unverändert?\",\"a\":\"Nomen auf **betonten Vokal** und auf **Konsonant** – *il caffè → i caffè, l'autobus → gli autobus*\"}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Was passiert im Plural bei Nomen auf *-co, -go, -ca, -ga*?\",\"a\":\"Meist kommt ein **h** dazu, damit der harte Laut bleibt – *il cuoco → i cuochi, il fungo → i funghi, la biblioteca → le biblioteche*. Ausnahme: *l'amico → gli amici*.\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ amico di Marco è simpatico.\",\"a\":\"L'\",\"m\":\"Marcos Freund ist sympathisch.\",\"info\":\"vor Vokal\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ birra è fredda.\",\"a\":\"La\",\"m\":\"Das Bier ist kalt.\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ cane ha fame.\",\"a\":\"Il\",\"m\":\"Der Hund hat Hunger.\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ estate è bella.\",\"a\":\"L'\",\"m\":\"Der Sommer ist schön.\",\"info\":\"vor Vokal; estate ist feminin\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"Dov'è ___ farmacia?\",\"a\":\"la\",\"m\":\"Wo ist die Apotheke?\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ dottore parla italiano.\",\"a\":\"Il\",\"m\":\"Der Arzt spricht Italienisch.\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"Vorrei ___ caffè, per favore.\",\"a\":\"un\",\"m\":\"Ich hätte gern einen Kaffee, bitte.\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"Vorrei ___ acqua, per favore.\",\"a\":\"un'\",\"m\":\"Ich hätte gern ein Wasser, bitte.\",\"info\":\"feminin, vor Vokal\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"Marco ha ___ bicicletta.\",\"a\":\"una\",\"m\":\"Marco hat ein Fahrrad.\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"C'è ___ aeroporto qui?\",\"a\":\"un\",\"m\":\"Gibt es hier einen Flughafen?\",\"info\":\"maskulin: un, auch vor Vokal\"}\n";
 /* Schedario – flexible Karten
    1. Generatoren: Die App erzeugt bei jeder Abfrage neue Aufgaben und prüft sie selbst
       (Zahlen, Uhrzeit, Datum, Wochentage, Monate, Jahreszeiten).
@@ -956,25 +1069,29 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.2"; S.SEED = "{\"k\":\"nom
   /* ---------- Generatoren ---------- */
   var GEN = {
     zahlen: {
-      de: 'Zahlen', en: 'Numbers', fit: false, front: { de: 'Schreib die Zahlen aus.', en: 'Write the numbers in words.' },
+      de: 'Zahlen', en: 'Numbers', fit: false, front: { de: 'Schreib die Zahlen in Worten.', en: 'Write the numbers in words.' },
       make: function (o) {
         var lo = Math.max(0, Math.min(9999, parseInt(o.von, 10) || 0)), hi = Math.max(lo + 3, Math.min(9999, parseInt(o.bis, 10) || 100));
         return distinct(3, function () { return pickNumber(lo, hi); });
       },
-      fields: function (vals) {
-        return vals.map(function (n) { var a = S.numWordAlts(n); return { l: String(n), a: a[0], alt: a.slice(1), it: true, nospace: true, mono: true }; });
+      fields: function (vals, L) {
+        return vals.map(function (n) { var a = S.numWordAlts(n); return { l: String(n), a: a[0], alt: a.slice(1), it: true, nospace: true, mono: true, h: '', ph: L === 'en' ? 'in words' : 'in Worten' }; });
       },
       info: { de: 'Zehner verlieren vor uno und otto den Vokal (ventuno, trentotto). Am Ende trägt tre einen Akzent (ventitré).',
         en: 'Tens drop their vowel before uno and otto (ventuno, trentotto). A final tre takes an accent (ventitré).' }
     },
     uhrzeit: {
-      de: 'Uhrzeit', en: 'Time', fit: true, front: { de: 'Che ora è? · A che ora?', en: 'Che ora è? · A che ora?' },
+      de: 'Uhrzeit', en: 'Time', fit: false, front: { de: 'Die Uhrzeit auf Italienisch', en: 'Telling the time in Italian' },
       make: function () { var a = pickTime(), b; do { b = pickTime(); } while (b[0] === a[0] && b[1] === a[1]); return [a, b]; },
       fields: function (vals, L) {
         var a = vals[0], b = vals[1], fa = S.timeAnswers(a[0], a[1], 'ora'), fb = S.timeAnswers(b[0], b[1], 'alle');
+        var fb2 = fb.slice();
+        fb.forEach(function (t) { fb2.push('apre ' + t); fb2.push('il supermercato apre ' + t); });
         return [
-          { l: a[0] + ':' + pad(a[1]), s: 'Che ora è?', a: cap(fa[0]), alt: fa.slice(1), it: true, loose: true, mono: true },
-          { l: (L === 'en' ? 'at ' : 'um ') + b[0] + ':' + pad(b[1]), s: 'A che ora …?', a: fb[0], alt: fb.slice(1), it: true, loose: true, mono: true }
+          { q: 'Che ora è?', l: a[0] + ':' + pad(a[1]), a: cap(fa[0]), alt: fa.slice(1), it: true, loose: true,
+            h: L === 'en' ? 'Answer with a whole sentence.' : 'Antworte im ganzen Satz.', ph: '' },
+          { q: 'A che ora apre il supermercato?', l: b[0] + ':' + pad(b[1]), a: fb[0], alt: fb2.filter(function (t, i) { return t !== fb[0]; }), it: true, loose: true,
+            h: L === 'en' ? 'The time is enough, no whole sentence needed.' : 'Die Uhrzeit reicht, kein ganzer Satz nötig.', ph: '' }
         ];
       },
       info: { de: 'È l\'una, è mezzogiorno, è mezzanotte – sonst sono le … (Plural). Uhrzeit nach „um“: alle …, all\'una, a mezzogiorno.',
@@ -997,8 +1114,10 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.2"; S.SEED = "{\"k\":\"nom
         });
         var short = (L === 'en' ? WD_EN : WD_DE)[wd].slice(0, 2);
         return [
-          { l: a[2] + '.' + (a[1] + 1) + '.', s: 'Quando è il tuo compleanno?', a: fa[0], alt: fa.slice(1), it: true, loose: true, mono: true },
-          { l: short + ', ' + b[2] + '.' + (b[1] + 1) + '.', s: 'Che giorno è oggi?', a: cap(fb[0]), alt: fb.slice(1), it: true, loose: true, mono: true }
+          { q: 'Quando è il tuo compleanno?', l: a[2] + '.' + (a[1] + 1) + '.', a: fa[0], alt: fa.slice(1), it: true, loose: true,
+            h: L === 'en' ? 'The date is enough (day and month).' : 'Das Datum reicht (Tag und Monat).', ph: '' },
+          { q: 'Che giorno è oggi?', l: short + ', ' + b[2] + '.' + (b[1] + 1) + '.', a: cap(fb[0]), alt: fb.slice(1), it: true, loose: true,
+            h: L === 'en' ? 'Answer with a whole sentence, including the weekday.' : 'Antworte im ganzen Satz, mit Wochentag.', ph: '' }
         ];
       },
       info: { de: 'Datum mit il und Grundzahl: il sei novembre. Nur der Erste ist eine Ordnungszahl: il primo maggio. Monatsnamen klein.',
@@ -1010,9 +1129,9 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.2"; S.SEED = "{\"k\":\"nom
       fields: function (vals, L) {
         var t = vals[0], u = vals[1];
         return [
-          { l: 'Domani è …', a: WD[(t + 1) % 7], alt: ['domani è ' + WD[(t + 1) % 7]], it: true, loose: true },
-          { l: 'Dopodomani è …', a: WD[(t + 2) % 7], alt: ['dopodomani è ' + WD[(t + 2) % 7]], it: true, loose: true },
-          { l: (L === 'en' ? WD_EN : WD_DE)[u], s: L === 'en' ? 'in Italian' : 'auf Italienisch', a: WD[u], alt: ['il ' + WD[u], 'la ' + WD[u]], it: true }
+          { l: 'Domani è …', lit: true, a: WD[(t + 1) % 7], alt: ['domani è ' + WD[(t + 1) % 7]], it: true, loose: true, h: '', ph: L === 'en' ? 'weekday' : 'Wochentag' },
+          { l: 'Dopodomani è …', lit: true, a: WD[(t + 2) % 7], alt: ['dopodomani è ' + WD[(t + 2) % 7]], it: true, loose: true, h: '', ph: L === 'en' ? 'weekday' : 'Wochentag' },
+          { l: (L === 'en' ? WD_EN : WD_DE)[u], s: L === 'en' ? 'in Italian' : 'auf Italienisch', a: WD[u], alt: ['il ' + WD[u], 'la ' + WD[u]], it: true, h: '', ph: L === 'en' ? 'weekday in Italian' : 'Wochentag auf Italienisch' }
         ];
       },
       frontVals: function (vals) { return WD[vals[0]]; },
@@ -1025,9 +1144,9 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.2"; S.SEED = "{\"k\":\"nom
       fields: function (vals, L) {
         var t = vals[0], u = vals[1], nx = MO[(t + 1) % 12], pv = MO[(t + 11) % 12];
         return [
-          { l: 'Il mese prossimo è …', a: nx, alt: ['il mese prossimo è ' + nx, 'è ' + nx], it: true, loose: true },
-          { l: 'Il mese scorso era …', a: pv, alt: ['il mese scorso era ' + pv, 'era ' + pv], it: true, loose: true },
-          { l: (L === 'en' ? MO_EN : MO_DE)[u], s: L === 'en' ? 'in Italian' : 'auf Italienisch', a: MO[u], it: true }
+          { l: 'Il mese prossimo è …', lit: true, a: nx, alt: ['il mese prossimo è ' + nx, 'è ' + nx], it: true, loose: true, h: '', ph: L === 'en' ? 'month' : 'Monat' },
+          { l: 'Il mese scorso era …', lit: true, a: pv, alt: ['il mese scorso era ' + pv, 'era ' + pv], it: true, loose: true, h: '', ph: L === 'en' ? 'month' : 'Monat' },
+          { l: (L === 'en' ? MO_EN : MO_DE)[u], s: L === 'en' ? 'in Italian' : 'auf Italienisch', a: MO[u], it: true, h: '', ph: L === 'en' ? 'month in Italian' : 'Monat auf Italienisch' }
         ];
       },
       frontVals: function (vals) { return MO[vals[0]]; },
@@ -1041,8 +1160,8 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.2"; S.SEED = "{\"k\":\"nom
         var m = vals[0], s = vals[1], a = SEASON[seasonOf(m)], b = SEASON[s];
         function alts(x) { var w = x[1]; return [w, 'in ' + w, 'd\'' + w, 'è ' + x[0]].concat(w === 'primavera' ? ['di primavera'] : []); }
         return [
-          { l: 'In che stagione è ' + MO[m] + '?', lit: true, a: a[0], alt: alts(a), it: true, loose: true },
-          { l: L === 'en' ? b[3] : b[2], s: L === 'en' ? 'with article' : 'mit Artikel', a: b[0], it: true }
+          { l: 'In che stagione è ' + MO[m] + '?', lit: true, a: a[0], alt: alts(a), it: true, loose: true, h: '', ph: L === 'en' ? 'season with article' : 'Jahreszeit mit Artikel' },
+          { l: L === 'en' ? b[3] : b[2], s: L === 'en' ? 'in Italian' : 'auf Italienisch', a: b[0], it: true, h: L === 'en' ? 'With the article' : 'Mit Artikel', ph: '' }
         ];
       },
       info: { de: 'la primavera, l\'estate, l\'autunno, l\'inverno – „im Sommer“: in estate oder d\'estate.',
@@ -1176,6 +1295,11 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.2"; S.SEED = "{\"k\":\"nom
     return n;
   };
   S.poolBack = poolBack;
+  S.genFront = function (x) {
+    var G = GEN[x.typ]; if (!G) return null;
+    var L = x.lang === 'en' ? 'en' : 'de';
+    return { front: x.typ === 'zahlen' ? G.front[L] + ' (' + x.von + '–' + x.bis + ')' : G.front[L].replace(' {x}', ''), frontIt: G.fit };
+  };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 /* Schedario – Dateien einlesen: docx, pptx (ZIP + XML), PDF (wird direkt an Claude geschickt), Fotos, Text */
@@ -1867,6 +1991,14 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.2"; S.SEED = "{\"k\":\"nom
   }
   /* Bringt gespeicherte Karten früherer Versionen auf den aktuellen Stand. Der Lernstand (Phase, Fälligkeit) bleibt unberührt. */
   function upgrade() {
+    app.meta.decks.forEach(function (d) {      // Titel der Generator-Karten aktuell halten
+      var ch = false;
+      (app.order[d.id] || []).forEach(function (id) {
+        var c = app.cards[id], nf = c.x && c.x.t === 'g' && S.genFront ? S.genFront(c.x) : null;
+        if (nf && (c.front !== nf.front || c.frontIt !== nf.frontIt)) { c.front = nf.front; c.frontIt = nf.frontIt; ch = true; }
+      });
+      if (ch) saveDeck(d.id);
+    });
     if ((app.meta.v || 1) >= 2) return;
     var seedCards = null, lang = app.meta.settings.lang;
     app.meta.decks.forEach(function (d) {
@@ -2198,8 +2330,12 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.2"; S.SEED = "{\"k\":\"nom
           box.appendChild(seg);
         } else {
           if (f.it) needAcc = true;
-          box.appendChild(h('div', { class: 'flabel' }, h('label', { for: fid, class: f.lit ? 'lit' : f.mono ? 'mono' : null, lang: f.lit ? 'it' : null }, f.l), f.s && v.kind !== 'conj' ? h('span', { class: 'fsub', lang: 'it' }, f.s) : null));
+          var fh = S.formHint(f, app.meta.settings.lang);
+          if (f.q) box.appendChild(h('label', { for: fid, class: 'fq' }, h('span', { class: 'fq-t', lang: 'it' }, f.q), h('span', { class: 'fq-d' }, f.l)));
+          else box.appendChild(h('div', { class: 'flabel' }, h('label', { for: fid, class: f.lit ? 'lit' : f.mono ? 'mono' : null, lang: f.lit ? 'it' : null }, f.l), f.s && v.kind !== 'conj' ? h('span', { class: 'fsub', lang: 'it' }, f.s) : null));
+          if (fh.h && !cur.checked) box.appendChild(h('p', { class: 'fhint', id: fid + '-h' }, fh.h));
           box.appendChild(h('input', { id: fid, class: 'inp', type: 'text', value: cur.values[i], lang: f.it ? 'it' : null, readonly: cur.checked,
+            placeholder: cur.checked ? null : fh.ph || null, 'aria-describedby': fh.h && !cur.checked ? fid + '-h' : null,
             autocapitalize: 'off', autocorrect: 'off', autocomplete: 'off', spellcheck: 'false', enterkeyhint: 'next',
             oninput: function (e) { cur.values[i] = e.target.value; },
             onfocus: function (e) { app.lastInput = e.target; },
@@ -2208,8 +2344,7 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.2"; S.SEED = "{\"k\":\"nom
               var empty = Array.prototype.filter.call(form.querySelectorAll('input.inp'), function (x) { return !x.value.trim() && x !== e.target; });
               if (empty.length && e.target.value.trim()) { e.preventDefault(); empty[0].focus(); }
             } }));
-          if (res && !res.ok) box.appendChild(h('p', { class: 'fix' }, 'Richtig: ', h('strong', { lang: f.it ? 'it' : null }, res.expected)));
-          else if (res && res.accent) box.appendChild(h('p', { class: 'fix warn' }, 'Akzent beachten: ', h('strong', { lang: 'it' }, res.expected)));
+          if (res && (!res.ok || res.accent)) box.appendChild(feedback(f, cur.values[i], res));
         }
         form.appendChild(box);
       });
@@ -2246,6 +2381,25 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.2"; S.SEED = "{\"k\":\"nom
     }
     root.appendChild(card);
     return root;
+  }
+  /* Rückmeldung zu einem Feld: bei Tippfehlern und langen Antworten mit Markierung der falschen Stelle */
+  function marks(segs, cls) {
+    return segs.map(function (s) { return s.x ? h('mark', { class: cls + (/^\s+$/.test(s.t) ? ' sp' : '') }, s.t) : s.t; });
+  }
+  function feedback(f, input, res) {
+    var lang = f.it ? 'it' : null, typed = String(input || '').trim();
+    var close = typed && (!f.lenient || S.lev(S.norm(typed), S.norm(res.expected)) / Math.max(typed.length, res.expected.length) <= 0.4);
+    if (res.ok && res.accent) {
+      var da = S.diff(typed, res.expected);
+      return h('div', { class: 'fix warn' }, 'Akzent beachten: ', h('strong', { lang: lang }, marks(da.ok, 'miss')));
+    }
+    if (!close) return h('p', { class: 'fix' }, 'Richtig: ', h('strong', { lang: lang }, res.expected));
+    var d = S.diff(typed, res.expected);
+    return h('div', { class: 'diff', role: 'group', 'aria-label': 'Vergleich mit der richtigen Antwort' },
+      h('span', { class: 'dl' }, 'Du'), h('span', { class: 'dv', lang: lang }, marks(d.you, 'bad')),
+      h('span', { class: 'dl' }, 'Richtig'), h('strong', { class: 'dv', lang: lang }, marks(d.ok, 'miss')),
+      res.missingStart ? h('span', { class: 'dn' }, 'Der Anfang fehlt: Antworte im ganzen Satz.') : null,
+      res.accent ? h('span', { class: 'dn' }, 'Achtung, auch ein Akzent fehlt.') : null);
   }
   function insertChar(ch, form) {
     var inp = app.lastInput && form.contains(app.lastInput) ? app.lastInput : form.querySelector('input.inp[lang="it"]');
