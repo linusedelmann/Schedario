@@ -11,12 +11,11 @@ self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
   e.respondWith(caches.open(CACHE).then(async (cache) => {
-    try {
-      const res = await fetch(req, { cache: 'no-cache' });
-      if (res && res.ok) cache.put(req, res.clone());
-      return res;
-    } catch (err) {
-      return (await cache.match(req, { ignoreSearch: true })) || (await cache.match('./index.html')) || Response.error();
-    }
+    const cached = async () => (await cache.match(req, { ignoreSearch: true })) || (req.mode === 'navigate' ? await cache.match('./index.html') : null);
+    let res = null;
+    try { res = await fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }); } catch (err) { res = null; }
+    if (res && res.ok) { cache.put(req, res.clone()); return res; }
+    // Netz weg oder Fehlerseite (z. B. 404, während GitHub neu veröffentlicht): lieber die gespeicherte App zeigen
+    return (await cached()) || res || Response.error();
   }));
 });
