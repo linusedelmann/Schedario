@@ -27,6 +27,9 @@ Gut zu wissen
   - Karten und Lernstand liegen im Speicher des Browsers. Unter "Optionen" kannst
     du ein Backup exportieren und auf einem anderen Gerät laden.
   - Lernen geht offline. Für den Import braucht die App Internet.
+  - Keine Wiederholungen: Ein Wort, das schon in irgendeinem Deck steckt, wird beim
+    Import nicht noch einmal angelegt. Beim Lernen kommt pro Wort höchstens eine
+    Karte am Tag dran (z. B. nicht "amico" und "der Freund" am selben Tag).
   - Update einspielen: die neuen Dateien ins selbe Repository hochladen ("Add file" >
     "Upload files", vorhandene werden ersetzt). Die App zeigt die neue Version
     spätestens beim zweiten Öffnen; die Versionsnummer steht unten in "Optionen".

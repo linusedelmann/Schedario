@@ -818,9 +818,10 @@ details.grp > summary .grow { overflow-wrap: anywhere; }
     var cards = [];
     seen = seen || {};
     records.forEach(function (r) {
+      var rec = S.uid();
       S.expand(r, lang).forEach(function (c) {
         if (seen[c.key]) return;
-        seen[c.key] = 1; cards.push(c);
+        seen[c.key] = 1; c.rec = rec; cards.push(c);
       });
     });
     return cards;
@@ -985,6 +986,14 @@ details.grp > summary .grow { overflow-wrap: anywhere; }
     lines.push('');
     lines.push(bund ? 'Reihenfolge: zuerst generator, dann Themenkarten in der Reihenfolge des Materials, dann Verben und Nomen, dann Regeln' + (on('luecke') ? ', zuletzt Lückensätze' : '') + '.'
       : 'Reihenfolge: zuerst die Wörter in der Reihenfolge des Materials, danach die Regeln' + (on('luecke') ? ', zuletzt die Lückensätze' : '') + '.');
+    var ex = o.existing || {};
+    if ((ex.words && ex.words.length) || (ex.generators && ex.generators.length)) {
+      lines.push('');
+      lines.push('SCHON IN DER APP (aus früheren Importen) – nicht noch einmal ausgeben, auch nicht als Eintrag einer Themenkarte oder in anderer Richtung:');
+      if (ex.generators && ex.generators.length) lines.push('- Generatoren: ' + ex.generators.join(', '));
+      if (ex.words && ex.words.length) lines.push('- Wörter: ' + ex.words.join(' | '));
+      lines.push('Kommt im Material nur Bekanntes vor, gib nur das Neue aus. Eine Themenkarte enthält nur neue Einträge.');
+    }
     if (o.known && o.known.length) {
       lines.push('');
       lines.push('BEREITS VORHANDEN (nicht noch einmal ausgeben): ' + o.known.join(' | '));
@@ -1004,7 +1013,7 @@ details.grp > summary .grow { overflow-wrap: anywhere; }
   if (typeof module !== 'undefined' && module.exports) module.exports = S;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
-S = globalThis.S = globalThis.S || {}; S.VERSION = "1.5.2"; S.SEED = "{\"k\":\"nomen\",\"it\":\"amico\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Freund\",\"pl\":\"gli amici\",\"plinfo\":\"Ausnahme: -co wird hier zu -ci, nicht zu -chi.\"}\n{\"k\":\"nomen\",\"it\":\"autobus\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Bus\",\"info\":\"Endet auf Konsonant: Fremdwort, maskulin.\",\"pl\":\"gli autobus\",\"plinfo\":\"Endet auf Konsonant: im Plural unverändert.\"}\n{\"k\":\"nomen\",\"it\":\"amore\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"die Liebe\",\"info\":\"Wörter auf -ore sind maskulin.\",\"pl\":\"gli amori\"}\n{\"k\":\"nomen\",\"it\":\"autunno\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Herbst\",\"pl\":\"gli autunni\"}\n{\"k\":\"nomen\",\"it\":\"aereo\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"das Flugzeug\",\"pl\":\"gli aerei\"}\n{\"k\":\"nomen\",\"it\":\"acqua\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"das Wasser\",\"pl\":\"le acque\"}\n{\"k\":\"nomen\",\"it\":\"appartamento\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"die Wohnung\",\"pl\":\"gli appartamenti\"}\n{\"k\":\"nomen\",\"it\":\"autostrada\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"die Autobahn\",\"pl\":\"le autostrade\"}\n{\"k\":\"nomen\",\"it\":\"aeroporto\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Flughafen\",\"pl\":\"gli aeroporti\"}\n{\"k\":\"nomen\",\"it\":\"antipasto\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"die Vorspeise\",\"pl\":\"gli antipasti\"}\n{\"k\":\"nomen\",\"it\":\"bambino\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Kind; der Junge\",\"pl\":\"i bambini\"}\n{\"k\":\"nomen\",\"it\":\"biblioteca\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"die Bibliothek\",\"pl\":\"le biblioteche\",\"plinfo\":\"-ca wird zu -che: Das h erhält den k-Laut.\"}\n{\"k\":\"nomen\",\"it\":\"birra\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Bier\",\"pl\":\"le birre\"}\n{\"k\":\"nomen\",\"it\":\"bicicletta\",\"alt\":[\"bici\"],\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Fahrrad\",\"info\":\"Kurzform: la bici.\",\"pl\":\"le biciclette\",\"plalt\":[\"le bici\"],\"plinfo\":\"Die Kurzform bleibt unverändert: le bici.\"}\n{\"k\":\"nomen\",\"it\":\"bocca\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"der Mund\",\"pl\":\"le bocche\",\"plinfo\":\"-ca wird zu -che: Das h erhält den k-Laut.\"}\n{\"k\":\"nomen\",\"it\":\"biscotto\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Keks\",\"pl\":\"i biscotti\"}\n{\"k\":\"nomen\",\"it\":\"caffè\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Kaffee\",\"info\":\"Mit Akzent schreiben: caffè.\",\"pl\":\"i caffè\",\"plinfo\":\"Endet auf betonten Vokal: im Plural unverändert.\"}\n{\"k\":\"nomen\",\"it\":\"carne\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Fleisch\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"le carni\"}\n{\"k\":\"nomen\",\"it\":\"cuoco\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Koch\",\"pl\":\"i cuochi\",\"plinfo\":\"-co wird zu -chi: Das h erhält den k-Laut.\"}\n{\"k\":\"nomen\",\"it\":\"cantante\",\"g\":\"m/f\",\"det\":\"il/la\",\"indet\":\"un/una\",\"m\":\"der Sänger; die Sängerin\",\"info\":\"Eine Form für beide, nur der Artikel wechselt.\",\"pl\":\"i cantanti / le cantanti\"}\n{\"k\":\"nomen\",\"it\":\"canzone\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Lied\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"le canzoni\"}\n{\"k\":\"nomen\",\"it\":\"cane\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Hund\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"i cani\"}\n{\"k\":\"nomen\",\"it\":\"cavallo\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Pferd\",\"pl\":\"i cavalli\"}\n{\"k\":\"nomen\",\"it\":\"capello\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Haar\",\"info\":\"Ein einzelnes Haar. Die Haare auf dem Kopf: i capelli.\",\"pl\":\"i capelli\"}\n{\"k\":\"nomen\",\"it\":\"cuore\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Herz\",\"info\":\"Wörter auf -ore sind maskulin.\",\"pl\":\"i cuori\"}\n{\"k\":\"nomen\",\"it\":\"dolce\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Nachtisch; die Süßspeise\",\"info\":\"Als Adjektiv heißt dolce „süß“.\",\"pl\":\"i dolci\"}\n{\"k\":\"nomen\",\"it\":\"dottore\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Arzt; der Doktor\",\"info\":\"Wörter auf -ore sind maskulin.\",\"pl\":\"i dottori\"}\n{\"k\":\"nomen\",\"it\":\"dio\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Gott\",\"pl\":\"gli dei\",\"plinfo\":\"Unregelmäßig: gli dei, mit dem Artikel gli.\"}\n{\"k\":\"nomen\",\"it\":\"dito\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Finger\",\"pl\":\"le dita\",\"plinfo\":\"Unregelmäßig: Der Plural ist feminin und endet auf -a.\"}\n{\"k\":\"nomen\",\"it\":\"dente\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Zahn\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"i denti\"}\n{\"k\":\"nomen\",\"it\":\"elefante\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Elefant\",\"pl\":\"gli elefanti\"}\n{\"k\":\"nomen\",\"it\":\"entrata\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"der Eingang\",\"pl\":\"le entrate\"}\n{\"k\":\"nomen\",\"it\":\"estate\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"der Sommer\",\"info\":\"Feminin, anders als im Deutschen.\",\"pl\":\"le estati\"}\n{\"k\":\"nomen\",\"it\":\"frutto\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"die Frucht\",\"info\":\"Die einzelne Frucht. Obst allgemein: la frutta.\",\"pl\":\"i frutti\"}\n{\"k\":\"nomen\",\"it\":\"fragola\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"die Erdbeere\",\"pl\":\"le fragole\"}\n{\"k\":\"nomen\",\"it\":\"finestra\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Fenster\",\"pl\":\"le finestre\"}\n{\"k\":\"nomen\",\"it\":\"formaggio\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Käse\",\"pl\":\"i formaggi\",\"plinfo\":\"-io mit unbetontem i: im Plural nur ein -i.\"}\n{\"k\":\"nomen\",\"it\":\"fratello\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Bruder\",\"pl\":\"i fratelli\"}\n{\"k\":\"nomen\",\"it\":\"fine\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Ende\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"le fini\"}\n{\"k\":\"nomen\",\"it\":\"farmacia\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"die Apotheke\",\"pl\":\"le farmacie\",\"plinfo\":\"Das betonte i bleibt: -cia wird zu -cie.\"}\n{\"k\":\"nomen\",\"it\":\"felicità\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Glück\",\"info\":\"Wörter auf -tà sind feminin.\"}\n{\"k\":\"nomen\",\"it\":\"frase\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"der Satz\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"le frasi\"}\n{\"k\":\"nomen\",\"it\":\"fungo\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Pilz\",\"pl\":\"i funghi\",\"plinfo\":\"-go wird zu -ghi: Das h erhält den g-Laut.\"}\n{\"k\":\"nomen\",\"it\":\"fumo\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Rauch\",\"pl\":\"i fumi\"}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Welcher bestimmte Artikel steht vor maskulinen Nomen, die mit einem Konsonanten beginnen, z. B. *bambino*?\",\"a\":\"**il** – *il bambino, il cane, il formaggio*\",\"kurz\":[\"il\"]}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Welcher bestimmte Artikel steht vor femininen Nomen, die mit einem Konsonanten beginnen, z. B. *birra*?\",\"a\":\"**la** – *la birra, la finestra, la carne*\",\"kurz\":[\"la\"]}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Welcher bestimmte Artikel steht vor Nomen, die mit einem Vokal beginnen, z. B. *amico* oder *acqua*?\",\"a\":\"**l'** – für beide Genera: *l'amico* (m), *l'acqua* (f), *l'estate* (f)\",\"kurz\":[\"l'\"]}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Wann heißt der maskuline bestimmte Artikel *lo* statt *il*?\",\"a\":\"Vor **s + Konsonant, z, gn, ps, x, y**: *lo studente, lo zio, lo gnocco*.\",\"info\":\"In dieser Wortliste kommt kein solches Wort vor.\"}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Welcher unbestimmte Artikel steht vor maskulinen Nomen wie *bambino* oder *amico*?\",\"a\":\"**un** – vor Konsonant und vor Vokal: *un bambino, un amico, un elefante*\",\"kurz\":[\"un\"]}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Welcher unbestimmte Artikel steht vor femininen Nomen, die mit einem Konsonanten beginnen, z. B. *birra*?\",\"a\":\"**una** – *una birra, una finestra, una frase*\",\"kurz\":[\"una\"]}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Welcher unbestimmte Artikel steht vor femininen Nomen, die mit einem Vokal beginnen, z. B. *acqua*?\",\"a\":\"**un'** – *un'acqua, un'entrata, un'estate*\",\"kurz\":[\"un'\"]}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"*l'amico* und *l'acqua* haben denselben bestimmten Artikel. Woran erkennst du trotzdem das Genus?\",\"a\":\"Am **unbestimmten Artikel**: *un amico* (maskulin, ohne Apostroph) – *un'acqua* (feminin, mit Apostroph).\"}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Wann heißt der maskuline unbestimmte Artikel *uno* statt *un*?\",\"a\":\"In denselben Fällen wie *lo*: vor **s + Konsonant, z, gn, ps, x, y** – *uno studente, uno zio*.\",\"info\":\"In dieser Wortliste kommt kein solches Wort vor.\"}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-o* in der Regel?\",\"a\":\"**maskulin** – *il bambino, il cavallo, l'aeroporto*\",\"kurz\":[\"maskulin\",\"m\",\"maschile\",\"männlich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-a* in der Regel?\",\"a\":\"**feminin** – *la birra, la farmacia, l'autostrada*\",\"kurz\":[\"feminin\",\"f\",\"femminile\",\"weiblich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Was sagt die Endung *-e* über das Genus eines Nomens?\",\"a\":\"**Nichts Sicheres.** Nomen auf *-e* können maskulin oder feminin sein, das Genus lernt man mit: *il cane, il dente, il cuore* – *la carne, la frase, la canzone*.\"}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-ore*, z. B. *amore, cuore, dottore*?\",\"a\":\"**maskulin** – *l'amore, il cuore, il dottore*\",\"kurz\":[\"maskulin\",\"m\",\"maschile\",\"männlich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-tà*, z. B. *felicità*?\",\"a\":\"**feminin** – *la felicità*\",\"kurz\":[\"feminin\",\"f\",\"femminile\",\"weiblich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"*cantante* hat nur eine Form. Wie zeigst du, ob ein Sänger oder eine Sängerin gemeint ist?\",\"a\":\"Mit dem **Artikel**: *il cantante* (der Sänger) – *la cantante* (die Sängerin).\"}\n{\"k\":\"regel\",\"thema\":\"Stolperfallen\",\"q\":\"*estate, fine, frase, carne, canzone*: Welches Genus haben diese Nomen auf *-e*, und was ist daran tückisch?\",\"a\":\"Alle fünf sind **feminin**. Tückisch: Im Deutschen heißt es *der* Sommer und *der* Satz, *das* Ende, *das* Fleisch, *das* Lied.\"}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Wie bilden maskuline Nomen auf *-o* den Plural?\",\"a\":\"Mit **-i** – *il bambino → i bambini, il cavallo → i cavalli*\",\"kurz\":[\"-i\",\"i\"]}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Wie bilden feminine Nomen auf *-a* den Plural?\",\"a\":\"Mit **-e** – *la birra → le birre, la finestra → le finestre*\",\"kurz\":[\"-e\",\"e\"]}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Wie bilden Nomen auf *-e* den Plural?\",\"a\":\"Mit **-i**, egal ob maskulin oder feminin – *il cane → i cani, la canzone → le canzoni*\",\"kurz\":[\"-i\",\"i\"]}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Wie lauten die bestimmten Artikel im Plural?\",\"a\":\"**i** (zu *il*), **gli** (zu *lo* und maskulinem *l'*), **le** (zu *la* und femininem *l'*) – *i cani, gli amici, le birre, le acque*\"}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Welche Nomen bleiben im Plural unverändert?\",\"a\":\"Nomen auf **betonten Vokal** und auf **Konsonant** – *il caffè → i caffè, l'autobus → gli autobus*\"}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Was passiert im Plural bei Nomen auf *-co, -go, -ca, -ga*?\",\"a\":\"Meist kommt ein **h** dazu, damit der harte Laut bleibt – *il cuoco → i cuochi, il fungo → i funghi, la biblioteca → le biblioteche*. Ausnahme: *l'amico → gli amici*.\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ amico di Marco è simpatico.\",\"a\":\"L'\",\"m\":\"Marcos Freund ist sympathisch.\",\"info\":\"vor Vokal\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ birra è fredda.\",\"a\":\"La\",\"m\":\"Das Bier ist kalt.\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ cane ha fame.\",\"a\":\"Il\",\"m\":\"Der Hund hat Hunger.\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ estate è bella.\",\"a\":\"L'\",\"m\":\"Der Sommer ist schön.\",\"info\":\"vor Vokal; estate ist feminin\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"Dov'è ___ farmacia?\",\"a\":\"la\",\"m\":\"Wo ist die Apotheke?\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ dottore parla italiano.\",\"a\":\"Il\",\"m\":\"Der Arzt spricht Italienisch.\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"Vorrei ___ caffè, per favore.\",\"a\":\"un\",\"m\":\"Ich hätte gern einen Kaffee, bitte.\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"Vorrei ___ acqua, per favore.\",\"a\":\"un'\",\"m\":\"Ich hätte gern ein Wasser, bitte.\",\"info\":\"feminin, vor Vokal\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"Marco ha ___ bicicletta.\",\"a\":\"una\",\"m\":\"Marco hat ein Fahrrad.\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"C'è ___ aeroporto qui?\",\"a\":\"un\",\"m\":\"Gibt es hier einen Flughafen?\",\"info\":\"maskulin: un, auch vor Vokal\"}\n";
+S = globalThis.S = globalThis.S || {}; S.VERSION = "1.6"; S.SEED = "{\"k\":\"nomen\",\"it\":\"amico\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Freund\",\"pl\":\"gli amici\",\"plinfo\":\"Ausnahme: -co wird hier zu -ci, nicht zu -chi.\"}\n{\"k\":\"nomen\",\"it\":\"autobus\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Bus\",\"info\":\"Endet auf Konsonant: Fremdwort, maskulin.\",\"pl\":\"gli autobus\",\"plinfo\":\"Endet auf Konsonant: im Plural unverändert.\"}\n{\"k\":\"nomen\",\"it\":\"amore\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"die Liebe\",\"info\":\"Wörter auf -ore sind maskulin.\",\"pl\":\"gli amori\"}\n{\"k\":\"nomen\",\"it\":\"autunno\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Herbst\",\"pl\":\"gli autunni\"}\n{\"k\":\"nomen\",\"it\":\"aereo\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"das Flugzeug\",\"pl\":\"gli aerei\"}\n{\"k\":\"nomen\",\"it\":\"acqua\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"das Wasser\",\"pl\":\"le acque\"}\n{\"k\":\"nomen\",\"it\":\"appartamento\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"die Wohnung\",\"pl\":\"gli appartamenti\"}\n{\"k\":\"nomen\",\"it\":\"autostrada\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"die Autobahn\",\"pl\":\"le autostrade\"}\n{\"k\":\"nomen\",\"it\":\"aeroporto\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Flughafen\",\"pl\":\"gli aeroporti\"}\n{\"k\":\"nomen\",\"it\":\"antipasto\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"die Vorspeise\",\"pl\":\"gli antipasti\"}\n{\"k\":\"nomen\",\"it\":\"bambino\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Kind; der Junge\",\"pl\":\"i bambini\"}\n{\"k\":\"nomen\",\"it\":\"biblioteca\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"die Bibliothek\",\"pl\":\"le biblioteche\",\"plinfo\":\"-ca wird zu -che: Das h erhält den k-Laut.\"}\n{\"k\":\"nomen\",\"it\":\"birra\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Bier\",\"pl\":\"le birre\"}\n{\"k\":\"nomen\",\"it\":\"bicicletta\",\"alt\":[\"bici\"],\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Fahrrad\",\"info\":\"Kurzform: la bici.\",\"pl\":\"le biciclette\",\"plalt\":[\"le bici\"],\"plinfo\":\"Die Kurzform bleibt unverändert: le bici.\"}\n{\"k\":\"nomen\",\"it\":\"bocca\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"der Mund\",\"pl\":\"le bocche\",\"plinfo\":\"-ca wird zu -che: Das h erhält den k-Laut.\"}\n{\"k\":\"nomen\",\"it\":\"biscotto\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Keks\",\"pl\":\"i biscotti\"}\n{\"k\":\"nomen\",\"it\":\"caffè\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Kaffee\",\"info\":\"Mit Akzent schreiben: caffè.\",\"pl\":\"i caffè\",\"plinfo\":\"Endet auf betonten Vokal: im Plural unverändert.\"}\n{\"k\":\"nomen\",\"it\":\"carne\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Fleisch\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"le carni\"}\n{\"k\":\"nomen\",\"it\":\"cuoco\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Koch\",\"pl\":\"i cuochi\",\"plinfo\":\"-co wird zu -chi: Das h erhält den k-Laut.\"}\n{\"k\":\"nomen\",\"it\":\"cantante\",\"g\":\"m/f\",\"det\":\"il/la\",\"indet\":\"un/una\",\"m\":\"der Sänger; die Sängerin\",\"info\":\"Eine Form für beide, nur der Artikel wechselt.\",\"pl\":\"i cantanti / le cantanti\"}\n{\"k\":\"nomen\",\"it\":\"canzone\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Lied\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"le canzoni\"}\n{\"k\":\"nomen\",\"it\":\"cane\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Hund\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"i cani\"}\n{\"k\":\"nomen\",\"it\":\"cavallo\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Pferd\",\"pl\":\"i cavalli\"}\n{\"k\":\"nomen\",\"it\":\"capello\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Haar\",\"info\":\"Ein einzelnes Haar. Die Haare auf dem Kopf: i capelli.\",\"pl\":\"i capelli\"}\n{\"k\":\"nomen\",\"it\":\"cuore\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"das Herz\",\"info\":\"Wörter auf -ore sind maskulin.\",\"pl\":\"i cuori\"}\n{\"k\":\"nomen\",\"it\":\"dolce\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Nachtisch; die Süßspeise\",\"info\":\"Als Adjektiv heißt dolce „süß“.\",\"pl\":\"i dolci\"}\n{\"k\":\"nomen\",\"it\":\"dottore\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Arzt; der Doktor\",\"info\":\"Wörter auf -ore sind maskulin.\",\"pl\":\"i dottori\"}\n{\"k\":\"nomen\",\"it\":\"dio\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Gott\",\"pl\":\"gli dei\",\"plinfo\":\"Unregelmäßig: gli dei, mit dem Artikel gli.\"}\n{\"k\":\"nomen\",\"it\":\"dito\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Finger\",\"pl\":\"le dita\",\"plinfo\":\"Unregelmäßig: Der Plural ist feminin und endet auf -a.\"}\n{\"k\":\"nomen\",\"it\":\"dente\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Zahn\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"i denti\"}\n{\"k\":\"nomen\",\"it\":\"elefante\",\"g\":\"m\",\"det\":\"l'\",\"indet\":\"un\",\"m\":\"der Elefant\",\"pl\":\"gli elefanti\"}\n{\"k\":\"nomen\",\"it\":\"entrata\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"der Eingang\",\"pl\":\"le entrate\"}\n{\"k\":\"nomen\",\"it\":\"estate\",\"g\":\"f\",\"det\":\"l'\",\"indet\":\"un'\",\"m\":\"der Sommer\",\"info\":\"Feminin, anders als im Deutschen.\",\"pl\":\"le estati\"}\n{\"k\":\"nomen\",\"it\":\"frutto\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"die Frucht\",\"info\":\"Die einzelne Frucht. Obst allgemein: la frutta.\",\"pl\":\"i frutti\"}\n{\"k\":\"nomen\",\"it\":\"fragola\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"die Erdbeere\",\"pl\":\"le fragole\"}\n{\"k\":\"nomen\",\"it\":\"finestra\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Fenster\",\"pl\":\"le finestre\"}\n{\"k\":\"nomen\",\"it\":\"formaggio\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Käse\",\"pl\":\"i formaggi\",\"plinfo\":\"-io mit unbetontem i: im Plural nur ein -i.\"}\n{\"k\":\"nomen\",\"it\":\"fratello\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Bruder\",\"pl\":\"i fratelli\"}\n{\"k\":\"nomen\",\"it\":\"fine\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Ende\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"le fini\"}\n{\"k\":\"nomen\",\"it\":\"farmacia\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"die Apotheke\",\"pl\":\"le farmacie\",\"plinfo\":\"Das betonte i bleibt: -cia wird zu -cie.\"}\n{\"k\":\"nomen\",\"it\":\"felicità\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"das Glück\",\"info\":\"Wörter auf -tà sind feminin.\"}\n{\"k\":\"nomen\",\"it\":\"frase\",\"g\":\"f\",\"det\":\"la\",\"indet\":\"una\",\"m\":\"der Satz\",\"info\":\"Nomen auf -e: Genus mitlernen.\",\"pl\":\"le frasi\"}\n{\"k\":\"nomen\",\"it\":\"fungo\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Pilz\",\"pl\":\"i funghi\",\"plinfo\":\"-go wird zu -ghi: Das h erhält den g-Laut.\"}\n{\"k\":\"nomen\",\"it\":\"fumo\",\"g\":\"m\",\"det\":\"il\",\"indet\":\"un\",\"m\":\"der Rauch\",\"pl\":\"i fumi\"}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Welcher bestimmte Artikel steht vor maskulinen Nomen, die mit einem Konsonanten beginnen, z. B. *bambino*?\",\"a\":\"**il** – *il bambino, il cane, il formaggio*\",\"kurz\":[\"il\"]}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Welcher bestimmte Artikel steht vor femininen Nomen, die mit einem Konsonanten beginnen, z. B. *birra*?\",\"a\":\"**la** – *la birra, la finestra, la carne*\",\"kurz\":[\"la\"]}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Welcher bestimmte Artikel steht vor Nomen, die mit einem Vokal beginnen, z. B. *amico* oder *acqua*?\",\"a\":\"**l'** – für beide Genera: *l'amico* (m), *l'acqua* (f), *l'estate* (f)\",\"kurz\":[\"l'\"]}\n{\"k\":\"regel\",\"thema\":\"Bestimmter Artikel\",\"q\":\"Wann heißt der maskuline bestimmte Artikel *lo* statt *il*?\",\"a\":\"Vor **s + Konsonant, z, gn, ps, x, y**: *lo studente, lo zio, lo gnocco*.\",\"info\":\"In dieser Wortliste kommt kein solches Wort vor.\"}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Welcher unbestimmte Artikel steht vor maskulinen Nomen wie *bambino* oder *amico*?\",\"a\":\"**un** – vor Konsonant und vor Vokal: *un bambino, un amico, un elefante*\",\"kurz\":[\"un\"]}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Welcher unbestimmte Artikel steht vor femininen Nomen, die mit einem Konsonanten beginnen, z. B. *birra*?\",\"a\":\"**una** – *una birra, una finestra, una frase*\",\"kurz\":[\"una\"]}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Welcher unbestimmte Artikel steht vor femininen Nomen, die mit einem Vokal beginnen, z. B. *acqua*?\",\"a\":\"**un'** – *un'acqua, un'entrata, un'estate*\",\"kurz\":[\"un'\"]}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"*l'amico* und *l'acqua* haben denselben bestimmten Artikel. Woran erkennst du trotzdem das Genus?\",\"a\":\"Am **unbestimmten Artikel**: *un amico* (maskulin, ohne Apostroph) – *un'acqua* (feminin, mit Apostroph).\"}\n{\"k\":\"regel\",\"thema\":\"Unbestimmter Artikel\",\"q\":\"Wann heißt der maskuline unbestimmte Artikel *uno* statt *un*?\",\"a\":\"In denselben Fällen wie *lo*: vor **s + Konsonant, z, gn, ps, x, y** – *uno studente, uno zio*.\",\"info\":\"In dieser Wortliste kommt kein solches Wort vor.\"}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-o* in der Regel?\",\"a\":\"**maskulin** – *il bambino, il cavallo, l'aeroporto*\",\"kurz\":[\"maskulin\",\"m\",\"maschile\",\"männlich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-a* in der Regel?\",\"a\":\"**feminin** – *la birra, la farmacia, l'autostrada*\",\"kurz\":[\"feminin\",\"f\",\"femminile\",\"weiblich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Was sagt die Endung *-e* über das Genus eines Nomens?\",\"a\":\"**Nichts Sicheres.** Nomen auf *-e* können maskulin oder feminin sein, das Genus lernt man mit: *il cane, il dente, il cuore* – *la carne, la frase, la canzone*.\"}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-ore*, z. B. *amore, cuore, dottore*?\",\"a\":\"**maskulin** – *l'amore, il cuore, il dottore*\",\"kurz\":[\"maskulin\",\"m\",\"maschile\",\"männlich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"Welches Genus haben Nomen auf *-tà*, z. B. *felicità*?\",\"a\":\"**feminin** – *la felicità*\",\"kurz\":[\"feminin\",\"f\",\"femminile\",\"weiblich\"]}\n{\"k\":\"regel\",\"thema\":\"Genus erkennen\",\"q\":\"*cantante* hat nur eine Form. Wie zeigst du, ob ein Sänger oder eine Sängerin gemeint ist?\",\"a\":\"Mit dem **Artikel**: *il cantante* (der Sänger) – *la cantante* (die Sängerin).\"}\n{\"k\":\"regel\",\"thema\":\"Stolperfallen\",\"q\":\"*estate, fine, frase, carne, canzone*: Welches Genus haben diese Nomen auf *-e*, und was ist daran tückisch?\",\"a\":\"Alle fünf sind **feminin**. Tückisch: Im Deutschen heißt es *der* Sommer und *der* Satz, *das* Ende, *das* Fleisch, *das* Lied.\"}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Wie bilden maskuline Nomen auf *-o* den Plural?\",\"a\":\"Mit **-i** – *il bambino → i bambini, il cavallo → i cavalli*\",\"kurz\":[\"-i\",\"i\"]}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Wie bilden feminine Nomen auf *-a* den Plural?\",\"a\":\"Mit **-e** – *la birra → le birre, la finestra → le finestre*\",\"kurz\":[\"-e\",\"e\"]}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Wie bilden Nomen auf *-e* den Plural?\",\"a\":\"Mit **-i**, egal ob maskulin oder feminin – *il cane → i cani, la canzone → le canzoni*\",\"kurz\":[\"-i\",\"i\"]}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Wie lauten die bestimmten Artikel im Plural?\",\"a\":\"**i** (zu *il*), **gli** (zu *lo* und maskulinem *l'*), **le** (zu *la* und femininem *l'*) – *i cani, gli amici, le birre, le acque*\"}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Welche Nomen bleiben im Plural unverändert?\",\"a\":\"Nomen auf **betonten Vokal** und auf **Konsonant** – *il caffè → i caffè, l'autobus → gli autobus*\"}\n{\"k\":\"regel\",\"thema\":\"Plural\",\"q\":\"Was passiert im Plural bei Nomen auf *-co, -go, -ca, -ga*?\",\"a\":\"Meist kommt ein **h** dazu, damit der harte Laut bleibt – *il cuoco → i cuochi, il fungo → i funghi, la biblioteca → le biblioteche*. Ausnahme: *l'amico → gli amici*.\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ amico di Marco è simpatico.\",\"a\":\"L'\",\"m\":\"Marcos Freund ist sympathisch.\",\"info\":\"vor Vokal\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ birra è fredda.\",\"a\":\"La\",\"m\":\"Das Bier ist kalt.\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ cane ha fame.\",\"a\":\"Il\",\"m\":\"Der Hund hat Hunger.\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ estate è bella.\",\"a\":\"L'\",\"m\":\"Der Sommer ist schön.\",\"info\":\"vor Vokal; estate ist feminin\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"Dov'è ___ farmacia?\",\"a\":\"la\",\"m\":\"Wo ist die Apotheke?\"}\n{\"k\":\"luecke\",\"thema\":\"Bestimmter Artikel\",\"satz\":\"___ dottore parla italiano.\",\"a\":\"Il\",\"m\":\"Der Arzt spricht Italienisch.\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"Vorrei ___ caffè, per favore.\",\"a\":\"un\",\"m\":\"Ich hätte gern einen Kaffee, bitte.\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"Vorrei ___ acqua, per favore.\",\"a\":\"un'\",\"m\":\"Ich hätte gern ein Wasser, bitte.\",\"info\":\"feminin, vor Vokal\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"Marco ha ___ bicicletta.\",\"a\":\"una\",\"m\":\"Marco hat ein Fahrrad.\"}\n{\"k\":\"luecke\",\"thema\":\"Unbestimmter Artikel\",\"satz\":\"C'è ___ aeroporto qui?\",\"a\":\"un\",\"m\":\"Gibt es hier einen Flughafen?\",\"info\":\"maskulin: un, auch vor Vokal\"}\n";
 /* Schedario – flexible Karten
    1. Generatoren: Die App erzeugt bei jeder Abfrage neue Aufgaben und prüft sie selbst
       (Zahlen, Uhrzeit, Datum, Wochentage, Monate, Jahreszeiten).
@@ -1429,6 +1438,167 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.5.2"; S.SEED = "{\"k\":\"n
         var n = S.expand({ k: 'generator', typ: typ, thema: base.eyebrow }, base.x.lang).filter(function (c) { return c.key === 'gen:' + t; })[0];
         if (n) { n.copyFrom = base.id; out.push(n); }
       });
+    });
+    return out;
+  };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+/* Schedario – keine Wiederholungen
+   1. Beim Import: Kein Wort wird ein zweites Mal angelegt, auch nicht in einem anderen Deck.
+   2. Beim Lernen: Pro Wort kommt an einem Tag nur eine Karte dran
+      (z. B. nicht „amico“ und „der Freund → l'amico“ am selben Tag, ein Verb nicht dreifach). */
+(function (g) {
+  'use strict';
+  var S = g.S;
+
+  /* Italienisches Wort ohne Artikel und Satzzeichen: "l'orologio" → "orologio", "la palestra" → "palestra" */
+  var ART = /^(?:(?:il|lo|la|i|gli|le|un|uno|una)\s+|(?:l|un)'\s*)/;
+  S.bareWord = function (p) {
+    return S.norm(p).replace(/[.,;:!?¿¡"«»()…]/g, '').replace(/\s+/g, ' ').trim().replace(ART, '').trim();
+  };
+  function firstIt(c) { var f = (c.fields || [])[0]; return f && !f.lenient ? f.a : ''; }
+
+  /* Zu welchem Wort gehört eine Karte? Karten desselben Worts sind „Geschwister“. */
+  S.groupKey = function (c) {
+    var x = c.x || {};
+    if (x.t === 'n' && x.it) return 'w:' + S.bareWord(x.it);
+    if (x.t === 'v' && x.inf) return 'w:' + S.bareWord(x.inf);
+    if (c.kind === 'noun' || c.kind === 'plural' || c.kind === 'conj') return 'w:' + S.bareWord(c.front);
+    if (c.kind === 'prod') return 'w:' + S.bareWord(firstIt(c) || c.front);
+    if (c.kind === 'voc') return 'w:' + S.bareWord(c.frontIt ? c.front : (firstIt(c) || c.front));
+    return 'k:' + (c.key || c.id);
+  };
+
+  /* Was eine Karte abfragt – für den Vergleich beim Import */
+  function itemIds(x) {
+    var out = [], fl = x.sp.slice(0, 2), al = x.sp.slice(-2);
+    x.items.forEach(function (it, i) {
+      var ids = [];
+      // Gegensatzpaare (it-it): Das Paar ist das Wissen, nicht das einzelne Wort
+      if (fl === 'it' && al === 'it') { out[i] = ['p:' + [S.bareWord(it.f), S.bareWord(it.a)].sort().join('|')]; return; }
+      if (fl === 'it') ids.push('w:' + S.bareWord(it.f));
+      if (al === 'it') ids.push('w:' + S.bareWord(it.a));
+      if (!ids.length) ids.push('w:' + S.bareWord(it.f));
+      out[i] = ids;
+    });
+    return out;
+  }
+  S.identities = function (c) {
+    var x = c.x || {};
+    if (c.kind === 'pool' && x.t === 'p' && Array.isArray(x.items)) return [].concat.apply([], itemIds(x));
+    if (c.kind === 'gen' && x.t === 'g') return ['g:' + x.typ];
+    if (c.kind === 'rule') return ['r:' + S.norm(c.front)];
+    if (c.kind === 'cloze') return ['l:' + S.norm(c.front)];
+    return [S.groupKey(c)];
+  };
+  function label(c, id) {
+    if (id && id.slice(0, 2) === 'w:') return id.slice(2);
+    if (id && id.slice(0, 2) === 'p:') return id.slice(2).replace('|', ' ↔ ');
+    if (c.kind === 'gen') return c.eyebrow + ': ' + c.front;
+    return String(c.front || '').replace(/\*+/g, '').slice(0, 60);
+  }
+
+  /* Neue Karten gegen alle vorhandenen prüfen.
+     existing: [{card, deck}] · target: Ziel-Deck-ID (oder 'new')
+     Ergebnis: {cards, skipped:[{name, deck}], trimmed:[{name, deck, topic}], updates:[card]}
+     updates = Karten, die es im Ziel-Deck schon gibt: nur zum Ergänzen (Plural, Einträge), nicht als neue Karte. */
+  S.dedupImport = function (fresh, existing, target) {
+    var have = {}, keysInTarget = {}, i;
+    existing.forEach(function (e) {
+      S.identities(e.card).forEach(function (id) { if (!have[id]) have[id] = e.deck; });
+      if (e.deckId === target && e.card.key) keysInTarget[e.card.key] = 1;
+    });
+    var taken = {}, out = [], skipped = [], trimmed = [], updates = [];
+    function clash(id, rec) { return have[id] ? have[id] : taken[id] && taken[id] !== rec ? '—' : null; }
+    // 1. Wörter, Verben, Regeln, Generatoren zuerst: Sie sind reicher als ein Eintrag einer Themenkarte
+    fresh.forEach(function (c) {
+      if (c.kind === 'pool') return;
+      var rec = c.rec || c.key, ids = S.identities(c), where = null, hit = null;
+      for (i = 0; i < ids.length && !where; i++) { where = clash(ids[i], rec); hit = ids[i]; }
+      if (where) {
+        if (keysInTarget[c.key]) updates.push(c);
+        else if (!skipped.some(function (s) { return s.name === label(c, hit); })) skipped.push({ name: label(c, hit), deck: where === '—' ? '' : where });
+        c.dup = true;
+        return;
+      }
+      ids.forEach(function (id) { taken[id] = rec; });
+    });
+    // 2. Themenkarten: Einträge, die es schon gibt, herausnehmen
+    var extra = [];
+    fresh.forEach(function (c) {
+      if (c.kind !== 'pool') return;
+      var x = c.x, ids = itemIds(x), keep = [];
+      x.items.forEach(function (it, j) {
+        var hitDeck = null, hitNew = false;
+        ids[j].forEach(function (id) { if (have[id]) hitDeck = hitDeck || have[id]; else if (taken[id]) hitNew = true; });
+        if (hitDeck || hitNew) { trimmed.push({ name: it.a, deck: hitDeck || '', topic: c.eyebrow }); return; }
+        ids[j].forEach(function (id) { taken[id] = c.key; });
+        keep.push(it);
+      });
+      if (keysInTarget[c.key]) {
+        // Themenkarte gibt es im Ziel-Deck schon: neue Einträge werden beim Speichern dort ergänzt
+        if (keep.length) { c.x = Object.assign({}, x, { items: keep, st: {} }); updates.push(c); }
+        c.dup = true;
+        return;
+      }
+      if (!keep.length) { c.dup = true; return; }
+      if (keep.length === 1 && x.sp !== 'it-it') {   // ein Eintrag allein: als Vokabelkarten
+        var it = keep[0], itFirst = x.sp.slice(0, 2) === 'it';
+        S.expand({ k: 'vokabel', it: itFirst ? it.f : it.a, m: itFirst ? it.a : it.f, thema: c.eyebrow, info: c.info }, x.lang).forEach(function (v) { v.rec = c.key; extra.push(v); });
+        c.dup = true;
+        return;
+      }
+      if (keep.length < x.items.length) {
+        c.x = Object.assign({}, x, { items: keep, st: {}, n: Math.min(x.n, keep.length) });
+        c.back = S.poolBack(c.x, null);
+      }
+    });
+    fresh.forEach(function (c) { if (!c.dup) out.push(c); delete c.dup; });
+    return { cards: out.concat(extra), skipped: skipped, trimmed: trimmed, updates: updates };
+  };
+
+  /* Liste vorhandener Wörter für die Anweisung an Claude (kurz gehalten) */
+  S.existingWords = function (cards, maxChars) {
+    var seen = {}, words = [], gens = [], len = 0;
+    cards.forEach(function (c) {
+      S.identities(c).forEach(function (id) {
+        if (seen[id]) return; seen[id] = 1;
+        if (id.slice(0, 2) === 'g:') gens.push(id.slice(2));
+        else if (id.slice(0, 2) === 'w:' && len < (maxChars || 2500)) { words.push(id.slice(2)); len += id.length; }
+      });
+    });
+    return { words: words, generators: gens };
+  };
+
+  /* Tagesplan: was heute drankommt. Pro Wort höchstens eine Karte am Tag.
+     cards: in der Reihenfolge, in der neue Karten eingeführt werden · all: alle Karten (für „heute schon gelernt“) */
+  S.dayPlan = function (cards, all, today, newLimit) {
+    var blocked = {}, due = [], fresh = [], held = 0;
+    all.forEach(function (c) { if (c.last === today) blocked[S.groupKey(c)] = 1; });
+    var dueCards = cards.filter(function (c) { return S.isDue(c, today); });
+    // Wiederholungen zuerst; bei Geschwistern die mit der niedrigsten Phase (die braucht es am dringendsten)
+    dueCards.sort(function (a, b) { return (a.p || 0) - (b.p || 0) || (a.due || 0) - (b.due || 0); });
+    dueCards.forEach(function (c) {
+      var k = S.groupKey(c);
+      if (blocked[k]) { held++; return; }
+      blocked[k] = 1; due.push(c);
+    });
+    cards.forEach(function (c) {
+      if (!S.isNew(c) || fresh.length >= newLimit) return;
+      var k = S.groupKey(c);
+      if (blocked[k]) return;
+      blocked[k] = 1; fresh.push(c);
+    });
+    return { due: due, fresh: fresh, held: held };
+  };
+  /* Für „Frei üben“: zufällige Auswahl, aber jedes Wort nur einmal */
+  S.practicePick = function (cards, n) {
+    var used = {}, out = [];
+    cards.forEach(function (c) {
+      if (out.length >= n) return;
+      var k = S.groupKey(c);
+      if (used[k]) return;
+      used[k] = 1; out.push(c);
     });
     return out;
   };
@@ -1974,7 +2144,7 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.5.2"; S.SEED = "{\"k\":\"n
         if (job.text) content.push({ type: 'text', text: S.materialText({ name: job.name, part: job.part, parts: job.parts, text: job.text }) });
         content.push({ type: 'text', text: S.buildPrompt({
           lang: o.lang, kinds: o.kinds, amount: o.amount, mode: o.mode, name: job.name, pdf: !!job.pdf, hasImages: images.length > 0,
-          known: knownList(records), cont: cont
+          known: knownList(records), existing: o.existing, cont: cont
         }) });
 
         var last = 0, live = [];
@@ -2368,19 +2538,20 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.5.2"; S.SEED = "{\"k\":\"n
       var old = c.key && have[c.key];
       if (old && old.x && old.x.t === 'p') { if (S.poolMerge(old, c)) addCards.updated++; return; }
       if (old) {   // Karte gibt es schon: Lernstand behalten, nur fehlende Daten für wechselnde Abfragen ergänzen (Plural, Verbformen)
-        if (c.x && old.x !== c.x && (!old.x || (c.x.t === 'n' && c.x.pls.length && !(old.x.pls || []).length))) {
+        if (fills(old, c)) {
           old.x = c.x; addCards.updated++;
           if (c.x.plShow && old.back.indexOf(c.x.plShow) < 0) old.back += '\nPlural: *' + c.x.plShow + '*';
         }
         return;
       }
       var card = Object.assign({}, c, { id: S.uid() + n, deck: deckId, p: 0, due: 0, ok: 0, ko: 0 });
-      delete card.keep;
+      delete card.keep; delete card.rec;
       app.cards[card.id] = card; app.order[deckId].push(card.id); have[c.key] = card; n++;
     });
     saveDeck(deckId);
     return n;
   }
+  function fills(old, c) { return !!(c.x && old.x !== c.x && (!old.x || (c.x.t === 'n' && c.x.pls.length && !(old.x.pls || []).length))); }
   function addDeck(info, cards) {
     var deck = { id: S.uid(), name: info.name, src: info.src || '', example: !!info.example, created: S.now() };
     app.meta.decks.push(deck); app.order[deck.id] = [];
@@ -2415,8 +2586,12 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.5.2"; S.SEED = "{\"k\":\"n
       }
     });
     s.fresh = s.phases[0];
-    s.freshToday = Math.min(s.fresh, newLeft());
+    var pl = plan(deckId);
+    s.held = s.due - pl.due.length;      // fällig, aber ein anderes Wort derselben Gruppe kommt heute schon dran
+    s.due = pl.due.length;
+    s.freshToday = pl.fresh.length;
     s.todo = s.due + s.freshToday;
+    s.freshOpen = s.fresh ? plan(deckId, Infinity).fresh.length : 0;   // ohne Tageslimit: so viele neue gingen heute noch
     return s;
   }
   function whenText(day) {
@@ -2651,9 +2826,11 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.5.2"; S.SEED = "{\"k\":\"n
     } else {
       add(panel, [h('p', { class: 'eyebrow' }, 'Heute'), h('p', { class: 'front' }, 'Für heute erledigt.'),
         h('p', { class: 'muted' }, s.next !== null ? 'Nächste Wiederholung ' + whenText(s.next) + ': ' + plural(s.nextN, 'Karte', 'Karten') + '.' : 'Keine Wiederholung geplant.'),
-        s.fresh ? h('p', { class: 'muted' }, plural(s.fresh, 'neue Karte wartet', 'neue Karten warten') + ' noch. Das Tageslimit von ' + m.settings.newPerDay + ' ist erreicht.') : null,
+        s.fresh ? h('p', { class: 'muted', id: 'waiting' }, plural(s.fresh, 'neue Karte wartet', 'neue Karten warten') + ' noch. ' + (s.freshOpen
+          ? 'Das Tageslimit von ' + m.settings.newPerDay + ' ist erreicht.'
+          : (s.fresh === 1 ? 'Sie gehört' : 'Sie gehören') + ' zu Wörtern, die heute schon dran waren, und ' + (s.fresh === 1 ? 'kommt' : 'kommen') + ' an einem anderen Tag.')) : null,
         h('div', { class: 'actions' },
-          s.fresh ? h('button', { class: 'btn wide', id: 'more-new', onclick: function () { if (m.newDay !== t) { m.newDay = t; m.newCount = 0; } m.newCount = Math.min(m.newCount, m.settings.newPerDay) - 10; saveMeta(); startSession(null, false); } }, '10 neue dazu') : null,
+          s.freshOpen ? h('button', { class: 'btn wide', id: 'more-new', onclick: function () { if (m.newDay !== t) { m.newDay = t; m.newCount = 0; } m.newCount = Math.min(m.newCount, m.settings.newPerDay) - 10; saveMeta(); startSession(null, false); } }, '10 neue dazu') : null,
           h('button', { class: 'btn wide', id: 'practice', onclick: function () { startSession(null, true); } }, 'Frei üben'))]);
     }
     var done = m.doneDay === t ? m.doneCount : 0;
@@ -2689,19 +2866,23 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.5.2"; S.SEED = "{\"k\":\"n
   function isStandalone() { return g.navigator.standalone === true || (g.matchMedia && g.matchMedia('(display-mode: standalone)').matches); }
 
   /* ---------- Lernrunde ---------- */
+  /* Was heute drankommt – pro Wort höchstens eine Karte am Tag, über alle Decks hinweg */
+  function plan(deckId, limit) {
+    var pool = idsOf(deckId);
+    if (!deckId) {
+      pool = [];
+      app.meta.decks.slice().sort(function (a, b) { return (b.created || 0) - (a.created || 0); }).forEach(function (d) { pool = pool.concat(app.order[d.id] || []); });
+    }
+    var all = idsOf(null).map(function (id) { return app.cards[id]; });
+    return S.dayPlan(pool.map(function (id) { return app.cards[id]; }), all, S.today(), limit === undefined ? newLeft() : limit);
+  }
   function startSession(deckId, practice) {
-    var t = S.today(), ids = idsOf(deckId), queue;
-    if (practice) queue = shuffle(ids.slice()).slice(0, 30);
+    var queue, idf = function (c) { return c.id; };
+    if (practice) queue = S.practicePick(shuffle(idsOf(deckId).map(function (id) { return app.cards[id]; })), 30).map(idf);
     else {
-      var due = shuffle(ids.filter(function (id) { return S.isDue(app.cards[id], t); }));
-      var pool = ids;
-      if (!deckId) {
-        pool = [];
-        app.meta.decks.slice().sort(function (a, b) { return (b.created || 0) - (a.created || 0); }).forEach(function (d) { pool = pool.concat(app.order[d.id] || []); });
-      }
-      var fresh = pool.filter(function (id) { return S.isNew(app.cards[id]); }).slice(0, newLeft());
-      var rev = function (id) { var c = app.cards[id]; return c.kind === 'prod' || c.kind === 'plural' || (c.kind === 'voc' && !c.frontIt); };
-      queue = due.concat(fresh.filter(function (id) { return !rev(id); }), fresh.filter(rev));
+      var pl = plan(deckId);
+      var rev = function (c) { return c.kind === 'prod' || c.kind === 'plural' || (c.kind === 'voc' && !c.frontIt); };
+      queue = shuffle(pl.due).concat(pl.fresh.filter(function (c) { return !rev(c); }), pl.fresh.filter(rev)).map(idf);
     }
     if (!queue.length) { toast('Dafür gibt es gerade keine Karten.'); return; }
     app.sess = { deckId: deckId, practice: practice, queue: queue, pos: 0, seen: {}, ok: 0, ko: 0, finished: 0, total: queue.length, cur: null, done: false, vars: {} };
@@ -2908,6 +3089,7 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.5.2"; S.SEED = "{\"k\":\"n
     s.seen[c.id] = 1;
     if (first) { if (correct) s.ok++; else s.ko++; }
     if (!s.practice) {
+      if (c.last !== t) { c.last = t; saveDeck(c.deck); }   // heute gelernt: andere Karten zum selben Wort erst an einem anderen Tag
       var changed = false;
       if (S.isNew(c)) {
         if (correct) {
@@ -3194,6 +3376,20 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.5.2"; S.SEED = "{\"k\":\"n
     }
     return root;
   }
+  /* Alle vorhandenen Karten mit Deck-Namen */
+  function allCards() {
+    var out = [];
+    app.meta.decks.forEach(function (d) { (app.order[d.id] || []).forEach(function (id) { if (app.cards[id]) out.push({ card: app.cards[id], deck: d.name, deckId: d.id }); }); });
+    return out;
+  }
+  /* Erzeugte Karten übernehmen: Was es schon gibt (in irgendeinem Deck), wird nicht noch einmal angelegt */
+  function takeCards(imp, cards) {
+    var r = S.dedupImport(cards.map(function (c) { return Object.assign({}, c); }), allCards(), imp.target), have = {};
+    (app.order[imp.target] || []).forEach(function (id) { have[app.cards[id].key] = app.cards[id]; });
+    // nur behalten, was eine vorhandene Karte wirklich ergänzt (neue Einträge, fehlender Plural)
+    imp.updates = r.updates.filter(function (c) { var o = have[c.key]; return o && (c.kind === 'pool' ? c.x.items.length > 0 : fills(o, c)); });
+    imp.raw = cards; imp.cards = r.cards; imp.skipped = r.skipped; imp.trimmed = r.trimmed; imp.off = {};
+  }
   function modelName(id) {
     var all = (app.models || []).concat(S.MODELS);
     for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i].name;
@@ -3215,17 +3411,18 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.5.2"; S.SEED = "{\"k\":\"n
     render();
     S.runImport(jobs, {
       key: app.key, model: app.meta.settings.model, lang: app.meta.settings.lang, kinds: imp.kinds, amount: imp.amount, mode: imp.mode, signal: imp.ctl.signal,
+      existing: S.existingWords(allCards().map(function (e) { return e.card; })),
       onProgress: function (p) { imp.prog = p; paintProgress(); }
     }).then(function (res) {
       unlock();
-      imp.cards = res.cards; imp.usage = res.usage; imp.truncated = res.truncated; imp.bad = res.bad; imp.off = {};
+      takeCards(imp, res.cards); imp.usage = res.usage; imp.truncated = res.truncated; imp.bad = res.bad;
       if (!res.cards.length) { imp.step = 'pick'; imp.error = { message: 'Claude hat keine verwertbaren Karten geliefert.', detail: String((res.records.length ? '' : 'Die Antwort enthielt keine lesbaren Datensätze. ') + 'Versuch es noch einmal oder wähle ein anderes Modell.') }; }
       else imp.step = 'review';
-      if (app.route === 'import') render(); else toast(res.cards.length + ' Karten sind fertig. Sieh sie dir im Import an.', 5000);
+      if (app.route === 'import') render(); else toast(imp.cards.length + ' neue Karten sind fertig. Sieh sie dir im Import an.', 5000);
     }, function (err) {
       unlock();
       var part = err && err.partial;
-      if (part && part.cards.length) { imp.cards = part.cards; imp.usage = part.usage; imp.bad = part.bad; imp.off = {}; imp.step = 'review'; imp.error = err.code === 'cancelled' ? { message: 'Gestoppt. Die bis dahin erzeugten Karten kannst du übernehmen.' } : err; }
+      if (part && part.cards.length) { takeCards(imp, part.cards); imp.usage = part.usage; imp.bad = part.bad; imp.step = 'review'; imp.error = err.code === 'cancelled' ? { message: 'Gestoppt. Die bis dahin erzeugten Karten kannst du übernehmen.' } : err; }
       else { imp.step = 'pick'; imp.error = err && err.code === 'cancelled' ? null : (err || { message: 'Unbekannter Fehler.' }); }
       if (app.route === 'import') render();
     });
@@ -3253,7 +3450,20 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.5.2"; S.SEED = "{\"k\":\"n
   function viewReview() {
     var imp = app.imp, root = h('div', { class: 'stack' }), kept = imp.cards.filter(function (c, i) { return !imp.off[i]; }).length;
     root.appendChild(h('header', { class: 'top' }, h('h1', { class: 'page-title' }, 'Karten prüfen')));
-    root.appendChild(h('p', { class: 'muted' }, plural(imp.cards.length, 'Karte', 'Karten') + ' aus ' + imp.materials.map(function (m) { return m.name; }).join(', ') + '. Nimm heraus, was du nicht lernen willst.'));
+    var allUps = imp.updates || [], ups = allUps.filter(function (c) { return c.kind === 'pool'; }), fillN = allUps.length - ups.length;
+    root.appendChild(h('p', { class: 'muted' }, imp.cards.length
+      ? plural(imp.cards.length, 'neue Karte', 'neue Karten') + ' aus ' + imp.materials.map(function (m) { return m.name; }).join(', ') + '. Nimm heraus, was du nicht lernen willst.'
+      : 'Alles aus ' + imp.materials.map(function (m) { return m.name; }).join(', ') + ' gibt es schon in deinen Decks.' + (allUps.length ? ' Die Ergänzungen für vorhandene Karten kannst du übernehmen.' : '')));
+    var sk = imp.skipped || [], tr = imp.trimmed || [];
+    if (sk.length || tr.length) {
+      var where = function (d) { return d ? ' (in „' + d + '“)' : ' (doppelt im Material)'; };
+      root.appendChild(h('details', { class: 'note dupes', id: 'dupes' },
+        h('summary', null, h('strong', null, 'Keine Wiederholungen: '), plural(sk.length + tr.length, 'Wort', 'Wörter') + ' nicht noch einmal angelegt'),
+        sk.length ? h('p', { class: 'small' }, h('b', null, 'Schon vorhanden: '), sk.map(function (x) { return x.name + where(x.deck); }).join(' · ')) : null,
+        tr.length ? h('p', { class: 'small' }, h('b', null, 'Aus Themenkarten herausgenommen: '), tr.map(function (x) { return x.name + where(x.deck); }).join(' · ')) : null));
+    }
+    if (fillN) root.appendChild(h('p', { class: 'small muted', id: 'fill-ups' }, plural(fillN, 'vorhandene Karte bekommt', 'vorhandene Karten bekommen') + ' fehlende Angaben (Plural, Formen). Der Lernstand bleibt.'));
+    if (ups.length) root.appendChild(h('p', { class: 'small muted', id: 'pool-ups' }, ups.map(function (c) { return '„' + c.eyebrow + '“ bekommt ' + plural(c.x.items.length, 'neuen Eintrag', 'neue Einträge') + ': ' + c.x.items.map(function (it) { return it.a; }).join(', '); }).join('\n')));
     if (imp.error) root.appendChild(h('div', { class: 'note warn', role: 'alert' }, h('strong', null, imp.error.message), imp.error.detail ? h('span', { class: 'detail' }, imp.error.detail) : null));
     if (imp.truncated) root.appendChild(h('div', { class: 'note warn' }, 'Die Antwort war sehr lang und wurde abgeschnitten. Möglicherweise fehlen Karten vom Ende des Materials.'));
     if (imp.bad) root.appendChild(h('div', { class: 'note warn' }, plural(imp.bad, 'Zeile', 'Zeilen') + ' der Antwort waren nicht lesbar und wurden übersprungen.'));
@@ -3265,8 +3475,9 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.5.2"; S.SEED = "{\"k\":\"n
       if (idx[k] === undefined) { idx[k] = groups.length; groups.push({ name: k, items: [] }); }
       groups[idx[k]].items.push(i);
     });
-    var saveBtn = h('button', { class: 'btn primary big', id: 'save-cards', disabled: !kept, onclick: saveImport }, kept + ' Karten speichern');
-    function recount() { kept = imp.cards.filter(function (c, i) { return !imp.off[i]; }).length; saveBtn.textContent = kept + ' Karten speichern'; saveBtn.disabled = !kept; }
+    function saveText() { return kept ? kept + ' Karten speichern' : allUps.length ? 'Ergänzungen übernehmen' : 'Nichts Neues'; }
+    var saveBtn = h('button', { class: 'btn primary big', id: 'save-cards', disabled: !kept && !allUps.length, onclick: saveImport }, saveText());
+    function recount() { kept = imp.cards.filter(function (c, i) { return !imp.off[i]; }).length; saveBtn.textContent = saveText(); saveBtn.disabled = !kept && !allUps.length; }
     var list = h('div', { class: 'list' });
     groups.forEach(function (gr, gi) {
       var det = h('details', { class: 'grp', open: gi === 0 ? true : null }, h('summary', null, h('span', { class: 'grow' }, gr.name), h('span', { class: 'pill' }, gr.items.length)));
@@ -3288,7 +3499,7 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.5.2"; S.SEED = "{\"k\":\"n
   function saveImport() {
     var imp = app.imp, cards = imp.cards.filter(function (c, i) { return !imp.off[i]; }), deck, n;
     var src = imp.materials.map(function (m) { return m.name; }).join(', ');
-    if (imp.target !== 'new' && deckById(imp.target)) { deck = deckById(imp.target); n = addCards(deck.id, cards); }
+    if (imp.target !== 'new' && deckById(imp.target)) { deck = deckById(imp.target); n = addCards(deck.id, cards.concat(imp.updates || [])); }
     else { deck = addDeck({ name: (imp.name || '').trim() || 'Neues Deck', src: src }, cards); n = cards.length; }
     if (g.navigator.storage && g.navigator.storage.persist) { try { g.navigator.storage.persist(); } catch (e) { /* egal */ } }
     app.imp = null; app.deckId = deck.id;
@@ -3427,7 +3638,7 @@ S = globalThis.S = globalThis.S || {}; S.VERSION = "1.5.2"; S.SEED = "{\"k\":\"n
       g.navigator.serviceWorker.register('sw.js').catch(function () { /* ohne Offline-Modus */ });
     }
   }
-  S.start = start; S.render = render; S.go = go;
+  S.start = start; S.render = render; S.go = go; S.takeCards = takeCards; S.plan = plan;
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', start); else start();
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
