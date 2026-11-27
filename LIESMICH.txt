@@ -30,6 +30,10 @@ Gut zu wissen
   - Keine Wiederholungen: Ein Wort, das schon in irgendeinem Deck steckt, wird beim
     Import nicht noch einmal angelegt. Beim Lernen kommt pro Wort höchstens eine
     Karte am Tag dran (z. B. nicht "amico" und "der Freund" am selben Tag).
+  - Gegenteile: Zu jedem Wort mit einem gebräuchlichen Gegenteil (grande – piccolo,
+    aprire – chiudere, il giorno – la notte) entstehen Themenkarten "Gegenteile · …",
+    gefragt in beide Richtungen. Claude liefert sie beim Import, die App ergänzt aus
+    einer eingebauten Liste. Neue Gegenteile kommen beim Lernen zuerst dran.
   - Update einspielen: die neuen Dateien ins selbe Repository hochladen ("Add file" >
     "Upload files", vorhandene werden ersetzt). Die App zeigt die neue Version
     spätestens beim zweiten Öffnen; die Versionsnummer steht unten in "Optionen".
